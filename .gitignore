@@ -1,0 +1,7 @@
+# Editor Stuff
+.ionide
+.vscode
+
+# dotnet build
+bin
+obj

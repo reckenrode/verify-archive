@@ -1,0 +1,26 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A39FE342-4036-47D2-B680-111463666271}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VerifyArchive", "src\VerifyArchive\VerifyArchive.fsproj", "{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6} = {A39FE342-4036-47D2-B680-111463666271}
+	EndGlobalSection
+EndGlobal
