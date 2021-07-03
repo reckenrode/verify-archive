@@ -1,5 +1,5 @@
 # Editor Stuff
-.ionide
+.idea
 .vscode
 
 # dotnet build
@@ -8,3 +8,4 @@ obj
 
 # Ionide
 .fake
+.ionide
