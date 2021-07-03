@@ -9,3 +9,6 @@ obj
 # Ionide
 .fake
 .ionide
+
+# direnv
+.direnv
