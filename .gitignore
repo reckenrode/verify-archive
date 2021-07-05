@@ -4,6 +4,7 @@
 
 # dotnet build
 bin
+!/bin
 obj
 
 # Ionide
