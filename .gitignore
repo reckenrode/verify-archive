@@ -12,3 +12,6 @@ obj
 
 # direnv
 .direnv
+
+# macOS
+.DS_Store
