@@ -6,6 +6,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A39FE342-403
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VerifyArchive", "src\VerifyArchive\VerifyArchive.fsproj", "{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{227A8B78-2B55-4C14-9574-3999C2987BF6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VerifyArchive.Tests", "tests\VerifyArchive.Tests\VerifyArchive.Tests.fsproj", "{5C914096-5F12-4AF3-AE8B-B4818667E718}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,8 +23,13 @@ Global
 		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C914096-5F12-4AF3-AE8B-B4818667E718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C914096-5F12-4AF3-AE8B-B4818667E718}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C914096-5F12-4AF3-AE8B-B4818667E718}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C914096-5F12-4AF3-AE8B-B4818667E718}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CC2C016B-9C94-4D9A-B7AC-3F3D74E0EBD6} = {A39FE342-4036-47D2-B680-111463666271}
+		{5C914096-5F12-4AF3-AE8B-B4818667E718} = {227A8B78-2B55-4C14-9574-3999C2987BF6}
 	EndGlobalSection
 EndGlobal
