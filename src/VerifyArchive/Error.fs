@@ -2,7 +2,5 @@
 
 module VerifyArchive.Error
 
-open System.IO
-
 type Error =
-    | Mismatch of path: string * sourceHash: string * backupHash: string
+    | Mismatch of sourceHash: string * backupHash: string
