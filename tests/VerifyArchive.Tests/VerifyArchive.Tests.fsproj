@@ -17,4 +17,8 @@
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VerifyArchive\VerifyArchive.fsproj" />
+  </ItemGroup>
+
 </Project>
