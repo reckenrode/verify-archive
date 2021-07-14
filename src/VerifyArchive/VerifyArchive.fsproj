@@ -9,4 +9,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Ply" Version="0.3.*" />
+  </ItemGroup>
+
 </Project>
