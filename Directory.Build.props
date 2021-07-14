@@ -18,6 +18,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <NoWarn>FS0760;$(NoWarn)</NoWarn>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
