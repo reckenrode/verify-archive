@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ply" Version="0.3.*" />
+    <PackageReference Include="SharpZipLib" Version="1.*" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
   </ItemGroup>
 
