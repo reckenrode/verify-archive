@@ -5,3 +5,6 @@ module VerifyArchive.Error
 type Error =
     | Mismatch of sourceHash: string * backupHash: string
     | Missing
+
+type ArchiveError =
+    | InvalidArchive
