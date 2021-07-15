@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Error.fs" />
     <Compile Include="StreamComparison.fs" />
+    <Compile Include="FileSystem.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
