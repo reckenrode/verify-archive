@@ -9,6 +9,8 @@
     <Compile Include="Error.fs" />
     <Compile Include="StreamComparison.fs" />
     <Compile Include="FileSystem.fs" />
+    <Compile Include="Commands.fs" />
+    <Compile Include="Cli.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
