@@ -23,14 +23,26 @@ let private openArchive (archive: FileInfo) =
     with
     | :? IOException -> Error $"ERROR: could not open {archive}"
 
-let private formatFailure = function
-    | filename, Mismatch (sourceHash, backupHash) ->
-        $"{filename} mismatch, {sourceHash.[0..7]} ≠ {backupHash.[0..7]}\n"
-    | filename, _ ->
-        $"{filename} missing\n"
+let (|Basename|) : string -> string = Path.GetFileName
 
-let private showComparisonFailures failures (console: IConsole) =
-    failures |> List.iter (formatFailure >> console.Error.Write)
+let private formatErrors errors =
+    errors
+    |> Seq.map (function
+        | Basename filename, Mismatch (sourceHash, backupHash) ->
+            $"- “{filename}” mismatch, {sourceHash.[0..7]} ≠ {backupHash.[0..7]}"
+        | Basename filename, _ ->
+            $"- “{filename}” is missing")
+    |> String.concat "\n"
+
+let private formatFailure (path, errors) =
+    $"{path}\n{formatErrors errors}\n"
+
+let private showComparisonFailures (failures: list<string * Error>) (console: IConsole) =
+    failures
+    |> Seq.groupBy (fst >> Path.GetDirectoryName)
+    |> Seq.map formatFailure
+    |> String.concat "\n"
+    |> console.Error.Write
     -1
 
 let private showError msg (console: IConsole) =
