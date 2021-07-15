@@ -9,23 +9,7 @@ open System.IO.Compression
 
 open VerifyArchive.Error
 open VerifyArchive.FileSystem
-
-type private TemporaryDirectory () =
-    let mutable isDisposed = false
-
-    member val Path =
-        Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ())
-        |> Directory.CreateDirectory with get
-
-    interface IDisposable with
-        member this.Dispose () =
-            if not isDisposed
-            then
-                this.Path.Delete (recursive = true)
-                GC.SuppressFinalize this
-
-    override this.Finalize () =
-        (this :> IDisposable).Dispose ()
+open VerifyArchive.Tests.Utility
 
 [<Tests>]
 let tests = testList "VerifyArchive.ZipArchive" [
@@ -45,22 +29,6 @@ let tests = testList "VerifyArchive.ZipArchive" [
     }
 
     testList "archive with files" [
-        let setUpPath files path =
-            let dir = Path.Combine (path, Path.GetRandomFileName ()) |> Directory.CreateDirectory
-            files |> List.iter (fun (file: string, contents) ->
-                let dir =
-                    Path.Combine (dir.FullName, Path.GetDirectoryName file)
-                    |> Directory.CreateDirectory
-                let outputPath = Path.Combine (dir.FullName, Path.GetFileName file)
-                File.WriteAllText (outputPath, contents))
-            dir
-
-        let zipTestFiles files path =
-            let zipPath = setUpPath files path
-            let outputFilename = Path.Combine (path, Path.GetRandomFileName ())
-            ZipFile.CreateFromDirectory (zipPath.FullName, outputFilename)
-            ZipFile.OpenRead outputFilename
-
         testTask "when the file system has the same files, then they match" {
             let inputFiles = [
                 "file 1", "this is a test"
@@ -72,7 +40,7 @@ let tests = testList "VerifyArchive.ZipArchive" [
             let workingPath = workingDirectory.Path.FullName
 
             let filesPath = workingPath |> setUpPath inputFiles
-            use zip = workingPath |> zipTestFiles inputFiles
+            use zip = workingPath |> zipTestFiles inputFiles |> ZipFile.OpenRead
 
             let! result = zip |> compare filesPath.FullName
 
@@ -90,10 +58,13 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 "file 2", "this is another test"
                 "file 3", "this is a third file"
             ]
-            use zip = workingPath |> zipTestFiles [
-                "file 1", "this is a test"
-                "file 2", "this is another test"
-            ]
+            use zip =
+                workingPath
+                |> zipTestFiles [
+                    "file 1", "this is a test"
+                    "file 2", "this is another test"
+                ]
+                |> ZipFile.OpenRead
 
             let! result = zip |> compare filesPath.FullName
 
@@ -115,10 +86,13 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 "file 1", "this is a test"
                 "file 2", "this is another test"
             ]
-            let zip = workingPath |> zipTestFiles [
-                "file 1", "this is a test"
-                "file 2", "this is a wrong value"
-            ]
+            let zip =
+                workingPath
+                |> zipTestFiles [
+                    "file 1", "this is a test"
+                    "file 2", "this is a wrong value"
+                ]
+                |> ZipFile.OpenRead
 
             let! result = zip |> compare filesPath.FullName
 
@@ -136,10 +110,13 @@ let tests = testList "VerifyArchive.ZipArchive" [
             let filesPath = workingPath |> setUpPath [
                 "file 1", "this is a test"
             ]
-            let zip = workingPath |> zipTestFiles [
-                "file 1", "this is a test"
-                "file 2", "this is a wrong value"
-            ]
+            let zip =
+                workingPath
+                |> zipTestFiles [
+                    "file 1", "this is a test"
+                    "file 2", "this is a wrong value"
+                ]
+                |> ZipFile.OpenRead
 
             let! result = zip |> compare filesPath.FullName
 
@@ -157,7 +134,7 @@ let tests = testList "VerifyArchive.ZipArchive" [
             let workingPath = workingDirectory.Path.FullName
 
             let filesPath = workingPath |> setUpPath inputFiles
-            use zip = workingPath |> zipTestFiles inputFiles
+            use zip = workingPath |> zipTestFiles inputFiles |> ZipFile.OpenRead
 
             let! result = zip |> compare filesPath.FullName
 
@@ -180,11 +157,14 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 Path.Combine ("directory 1", "file 1"), "this is a test"
                 Path.Combine ("directory 2", "file 2"), "this is another test"
             ]
-            let zip = workingPath |> zipTestFiles [
-                Path.Combine ("directory 1", "file 1"), "this is a test"
-                Path.Combine ("directory 2", "file 2"), "this is a wrong value"
-                Path.Combine ("directory 3", "directory 4", "file 3"), "some missing text"
-            ]
+            let zip =
+                workingPath
+                |> zipTestFiles [
+                    Path.Combine ("directory 1", "file 1"), "this is a test"
+                    Path.Combine ("directory 2", "file 2"), "this is a wrong value"
+                    Path.Combine ("directory 3", "directory 4", "file 3"), "some missing text"
+                ]
+                |> ZipFile.OpenRead
 
             let! result = zip |> compare filesPath.FullName
 
