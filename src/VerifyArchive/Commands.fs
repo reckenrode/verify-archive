@@ -5,8 +5,8 @@ module VerifyArchive.Commands
 open FSharp.Control.Tasks.Affine
 open System.CommandLine
 open System.IO
-open System.IO.Compression
 
+open VerifyArchive.Archive
 open VerifyArchive.Error
 
 type Options = {
@@ -16,11 +16,12 @@ type Options = {
 
 let private openArchive (archive: FileInfo) =
     try
-        archive.FullName |> ZipFile.OpenRead |> Ok
+        archive.FullName
+        |> File.OpenRead
+        |> Zip.openRead
+        |> Result.mapError (fun _ -> $"ERROR: {archive} is not a zip file")
     with
     | :? IOException -> Error $"ERROR: could not open {archive}"
-    | :? System.NotSupportedException | :? InvalidDataException ->
-        Error $"ERROR: {archive} is not a zip file"
 
 let private formatFailure = function
     | filename, Mismatch (sourceHash, backupHash) ->

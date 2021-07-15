@@ -4,14 +4,14 @@ module VerifyArchive.FileSystem
 
 open FSharp.Control.Tasks.Affine
 open System.IO
-open System.IO.Compression
 open System.Threading.Tasks
 
+open VerifyArchive.Archive
 open VerifyArchive.Error
 
 let CHUNK_SIZE = 256
 
-let compare filesystemRoot (archive: ZipArchive) = task {
+let compare filesystemRoot (archive: Archive) = task {
     let tryOpenFile file =
         try
             File.OpenRead (Path.Combine (filesystemRoot, file)) |> Some
@@ -19,16 +19,16 @@ let compare filesystemRoot (archive: ZipArchive) = task {
         | :? IOException -> None
 
     let mutable errors = []
-    for chunk in archive.Entries |> Seq.chunkBySize CHUNK_SIZE do
+    for chunk in archive |> Archive.entries |> Seq.chunkBySize CHUNK_SIZE do
         let! results =
             chunk
             |> Seq.map (fun entry -> task {
-                let filename = entry.FullName
+                let filename = entry |> Entry.name
                 match tryOpenFile filename with
                 | None -> return Some (filename, Missing)
                 | Some file ->
                     use file = file
-                    use zipFile = entry.Open ()
+                    use zipFile = entry |> Entry.openStream
                     match! file |> StreamComparison.compare zipFile with
                     | Ok () -> return None
                     | Error error -> return Some (filename, error)

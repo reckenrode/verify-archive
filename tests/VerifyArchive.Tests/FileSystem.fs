@@ -3,10 +3,9 @@
 module VerifyArchive.Tests.FileSystem
 
 open Expecto
-open System
 open System.IO
-open System.IO.Compression
 
+open VerifyArchive.Archive
 open VerifyArchive.Error
 open VerifyArchive.FileSystem
 open VerifyArchive.Tests.Utility
@@ -18,10 +17,12 @@ let tests = testList "VerifyArchive.ZipArchive" [
 
         use workingDirectory = TemporaryDirectory ()
 
-        use emptyZip =
+        let emptyZip =
             workingDirectory.Path.FullName
             |> zipTestFiles []
-            |> ZipFile.OpenRead
+            |> File.OpenRead
+            |> Zip.openRead
+        use emptyZip = Expect.wantOk emptyZip "the zip was opened"
 
         let! result = emptyZip |> compare "/"
 
@@ -40,7 +41,12 @@ let tests = testList "VerifyArchive.ZipArchive" [
             let workingPath = workingDirectory.Path.FullName
 
             let filesPath = workingPath |> setUpPath inputFiles
-            use zip = workingPath |> zipTestFiles inputFiles |> ZipFile.OpenRead
+            let zip =
+                workingPath
+                |> zipTestFiles inputFiles
+                |> File.OpenRead
+                |> Zip.openRead
+            use zip = Expect.wantOk zip "the zip was opened"
 
             let! result = zip |> compare filesPath.FullName
 
@@ -58,13 +64,15 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 "file 2", "this is another test"
                 "file 3", "this is a third file"
             ]
-            use zip =
+            let zip =
                 workingPath
                 |> zipTestFiles [
                     "file 1", "this is a test"
                     "file 2", "this is another test"
                 ]
-                |> ZipFile.OpenRead
+                |> File.OpenRead
+                |> Zip.openRead
+            use zip = Expect.wantOk zip "the zip was opened"
 
             let! result = zip |> compare filesPath.FullName
 
@@ -92,7 +100,9 @@ let tests = testList "VerifyArchive.ZipArchive" [
                     "file 1", "this is a test"
                     "file 2", "this is a wrong value"
                 ]
-                |> ZipFile.OpenRead
+                |> File.OpenRead
+                |> Zip.openRead
+            use zip = Expect.wantOk zip "the zip was opened"
 
             let! result = zip |> compare filesPath.FullName
 
@@ -116,7 +126,9 @@ let tests = testList "VerifyArchive.ZipArchive" [
                     "file 1", "this is a test"
                     "file 2", "this is a wrong value"
                 ]
-                |> ZipFile.OpenRead
+                |> File.OpenRead
+                |> Zip.openRead
+            use zip = Expect.wantOk zip "the zip was opened"
 
             let! result = zip |> compare filesPath.FullName
 
@@ -134,7 +146,12 @@ let tests = testList "VerifyArchive.ZipArchive" [
             let workingPath = workingDirectory.Path.FullName
 
             let filesPath = workingPath |> setUpPath inputFiles
-            use zip = workingPath |> zipTestFiles inputFiles |> ZipFile.OpenRead
+            let zip =
+                workingPath
+                |> zipTestFiles inputFiles
+                |> File.OpenRead
+                |> Zip.openRead
+            use zip = Expect.wantOk zip "the zip was opened"
 
             let! result = zip |> compare filesPath.FullName
 
@@ -164,7 +181,9 @@ let tests = testList "VerifyArchive.ZipArchive" [
                     Path.Combine ("directory 2", "file 2"), "this is a wrong value"
                     Path.Combine ("directory 3", "directory 4", "file 3"), "some missing text"
                 ]
-                |> ZipFile.OpenRead
+                |> File.OpenRead
+                |> Zip.openRead
+            use zip = Expect.wantOk zip "the zip was opened"
 
             let! result = zip |> compare filesPath.FullName
 
