@@ -19,9 +19,9 @@ let tests = testList "VerifyArchive.ZipArchive" [
         use workingDirectory = TemporaryDirectory ()
 
         use emptyZip =
-            let zipPath = Path.Combine (workingDirectory.Path.FullName, Path.GetRandomFileName ())
-            (ZipFile.Open (zipPath, ZipArchiveMode.Create)).Dispose ()
-            ZipFile.OpenRead zipPath
+            workingDirectory.Path.FullName
+            |> zipTestFiles []
+            |> ZipFile.OpenRead
 
         let! result = emptyZip |> compare "/"
 
