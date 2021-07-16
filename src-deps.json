@@ -1,0 +1,30 @@
+{
+  "FSharp.Core": {
+    "version": "5.0.0",
+    "hash": "sha256-HYn+BzwplXow+tl9ziT5MHYcMmuWonqczReUxHKaEoM="
+  },
+  "Ply": {
+    "version": "0.3.1",
+    "hash": "sha256-RpLtDGUggvo7cSKOgzJ6WzU+KBueGPkRorvLMnRxFu0="
+  },
+  "SharpZipLib": {
+    "version": "1.3.2",
+    "hash": "sha256-jjSnUOVAyXRKU+EWviZIjAOwg6mdaWNlcPeru6O2L38="
+  },
+  "System.CommandLine": {
+    "version": "2.0.0-beta1.21308.1",
+    "hash": "sha256-14pgyMy3F86XickXZB+AMX6uMTkVvBg5tV90p1G+4yY="
+  },
+  "Microsoft.CSharp": {
+    "version": "4.4.1",
+    "hash": "sha256-7/gsQHWAuFWrcVpVharASTNL+Mvl6Gw+AAw41k0MzXw="
+  },
+  "System.Memory": {
+    "version": "4.5.4",
+    "hash": "sha256-3sCEfzO4gj5CYGctl9ZXQRRhwAraMQfse7yzKoRe65E="
+  },
+  "System.Threading.Tasks.Extensions": {
+    "version": "4.5.4",
+    "hash": "sha256-owSpY8wHlsUXn5xrfYAiu847L6fAKethlvYx97Ri1ng="
+  }
+}
