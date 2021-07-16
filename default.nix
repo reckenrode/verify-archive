@@ -37,7 +37,7 @@ in stdenv.mkDerivation rec {
     owner = "reckenrode";
     repo = "VerifyArchive";
     rev = "v${version}";
-    hash = "";
+    hash = "sha256-5HBHispTeQTg1QRi7kyWDMKqt2r8bpQOGhaGl5PS+7g=";
   };
 
   nativeBuildInputs = [
