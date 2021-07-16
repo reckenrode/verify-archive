@@ -12,14 +12,14 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
       in rec {
-        # packages.verify-archive = import ./default.nix {};
-        # defaultPackage = packages.verify-archive;
+        packages.verify-archive = pkgs.callPackage ./default.nix {};
+        defaultPackage = packages.verify-archive;
 
-        # apps.verify-archive = {
-        #   type = "app";
-        #   program = "${packages.verify-archive}/bin/verify-archive";
-        # };
-        # apps.defaultApp = apps.verify-archive;
+        apps.verify-archive = {
+          type = "app";
+          program = "${packages.verify-archive}/bin/verify-archive";
+        };
+        apps.defaultApp = apps.verify-archive;
 
         devShell = import ./shell.nix { inherit pkgs; };
       }
