@@ -57,4 +57,15 @@ in stdenv.mkDerivation rec {
     makeWrapper ${dotnetCorePackages.net_5_0}/bin/dotnet "$out/bin/${pname}" \
       --add-flags $out/VerifyArchive.dll --argv0 verify-archive 
   '';
+
+  meta = with lib; {
+    description = "Finds discrepancies between Backblaze backups and the local filesystem";
+    longDescription = ''
+      VerifyArchive compares Backblaze backup archives to the local filesystem and reports any
+      discrepancies it finds.
+    '';
+    homepage = "https://github.com/reckenrode/VerifyArchive";
+    license = licenses.gpl3Only;
+    platforms = dotnetCorePackages.net_5_0.meta.platforms;
+  };
 }
