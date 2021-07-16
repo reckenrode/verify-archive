@@ -31,7 +31,7 @@ let
     in linkFarm "${name}-nugets" nugets;
 in stdenv.mkDerivation rec {
   pname = "verify-archive";
-  version = "0.1.0";
+  version = "0.1.1";
 
   src = fetchFromGitHub {
     owner = "reckenrode";
