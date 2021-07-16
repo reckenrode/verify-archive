@@ -22,4 +22,4 @@ let private rootCommand =
     root.Handler <- CommandHandler.Create Commands.verify
     root
 
-let builder = CommandLineBuilder rootCommand
+let builder = (CommandLineBuilder rootCommand).UseDefaults ()
