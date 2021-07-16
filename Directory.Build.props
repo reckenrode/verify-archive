@@ -8,10 +8,7 @@
   <PropertyGroup>
     <Copyright>Copyright © 2021 Randy Eckenrode</Copyright>
     <Authors>Randy Eckenrode</Authors>
-    <Description>
-      VerifyArchive compares Backblaze backup archives to the local filesystem and reports any
-      discrepancies it finds.
-    </Description>
+    <Description>VerifyArchive compares Backblaze backup archives to the local filesystem and reports any discrepancies it finds.</Description>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/reckenrode/VerifyArchive</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
