@@ -1,7 +1,6 @@
 { lib
 , linkFarm
 , stdenv
-, fetchFromGitHub
 , fetchurl
 , makeWrapper
 , dotnetCorePackages
@@ -36,12 +35,7 @@ in stdenv.mkDerivation rec {
     (flip elemAt 0)
   ];
 
-  src = fetchFromGitHub {
-    owner = "reckenrode";
-    repo = "VerifyArchive";
-    rev = "v${version}";
-    hash = "sha256-5HBHispTeQTg1QRi7kyWDMKqt2r8bpQOGhaGl5PS+7g=";
-  };
+  src = ./.;
 
   nativeBuildInputs = [
     dotnetCorePackages.sdk_5_0
