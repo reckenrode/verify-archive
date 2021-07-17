@@ -12,6 +12,14 @@ Alternatively, if you use [Nix][2] with a version of `nix` that supports flakes,
 provides a flake.  You can run it by typing `nix run github:reckenrode/VerifyArchive`.  See my
 [nixos-configs][3] for an example of adding it to a [home-manager][4] environment.
 
+## Which branch to use
+
+I make heavy use of topic branches when doing local development, but I push my changes to main.
+While I try to make sure that all of my tests pass, if you don’t want to get possibly pre-release
+code, you should track the release branch.  The release branch tracks main, but it is updated only
+when a release is tagged.  This mainly applies if you are using the flake since that builds from
+the git repository instead of one of the tagged releases.
+
 # Running verify-archive
 
 `verify-archive` takes two parameters: the archive to check and (optionally) the root directory
