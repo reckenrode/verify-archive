@@ -29,7 +29,11 @@ let
     in linkFarm "${name}-nugets" nugets;
 in stdenv.mkDerivation rec {
   pname = "verify-archive";
-  version = "0.1.1";
+  version = with builtins; with lib.trivial; pipe ./Directory.Build.props [
+    readFile
+    (match ".*<VersionPrefix>([^<]*)</VersionPrefix>.*")
+    (flip elemAt 0)
+  ];
 
   src = fetchFromGitHub {
     owner = "reckenrode";
