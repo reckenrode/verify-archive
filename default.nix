@@ -9,9 +9,7 @@
 }:
 
 let
-  loadJSON = (path: lib.trivial.pipe path [ builtins.readFile builtins.fromJSON ]);
-  src-deps = loadJSON ./src-deps.json;
-  test-deps = loadJSON ./test-deps.json;
+  src-deps = lib.trivial.importJSON ./src-deps.json;
   nugets = nugetSource {
     name = "verify-archive";
     sdk = dotnetCorePackages.sdk_5_0;
