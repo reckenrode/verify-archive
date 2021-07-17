@@ -5,6 +5,7 @@
 , fetchurl
 , makeWrapper
 , dotnetCorePackages
+, findutils
 , nugetUrl ? "https://www.nuget.org/api/v2/package"
 }:
 
@@ -44,6 +45,7 @@ in stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     dotnetCorePackages.sdk_5_0
+    findutils
     makeWrapper
   ];
 
@@ -55,9 +57,12 @@ in stdenv.mkDerivation rec {
 
   installPhase = ''
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
-    dotnet publish --nologo --no-build -c Release -o "$out" src/VerifyArchive/VerifyArchive.fsproj
+    targetDir="$out/libexec/verify-archive"
+    dotnet publish --nologo --no-build -c Release -o "$targetDir" \
+      src/VerifyArchive/VerifyArchive.fsproj
+    find "$targetDir" -name '*.dll' | xargs chmod a-x
     makeWrapper ${dotnetCorePackages.net_5_0}/bin/dotnet "$out/bin/${pname}" \
-      --add-flags $out/VerifyArchive.dll --argv0 verify-archive 
+      --add-flags "$targetDir/VerifyArchive.dll" --argv0 verify-archive
   '';
 
   meta = with lib; {
