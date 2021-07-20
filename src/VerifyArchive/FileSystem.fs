@@ -9,7 +9,7 @@ open System.Threading.Tasks
 open VerifyArchive.Archive
 open VerifyArchive.Error
 
-let CHUNK_SIZE = 256
+let CHUNK_SIZE = 2 <<< 18
 
 let compare filesystemRoot (archive: Archive) = task {
     let tryOpenFile file =
