@@ -31,8 +31,8 @@
       "YoloDev.Expecto.TestSdk": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.11.1",
-        "contentHash": "IUC8Y0rG2KvZfxIUdW0OhxJXg1fCC2n1dQZFNaBJRH17Mycyj93ZMomQJqz+rqBNSR4MGwvO5/mxSD+z6OhWHA==",
+        "resolved": "0.12.3",
+        "contentHash": "SqiH6o7Ta+98kfclOtCqFb4BLrLfwev28QgFJ9jXxN595IA2muF16HA1FQTnU+yyicxJKPSEghobL+lpr8nDJg==",
         "dependencies": {
           "Expecto": "[9.0.0, 10.0.0)",
           "FSharp.Core": "4.6.0",
