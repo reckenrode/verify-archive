@@ -3,13 +3,28 @@
 module VerifyArchive.FileSystem
 
 open FSharp.Control.Tasks.Affine
+open FSharpx.Option
 open System.IO
 open System.Threading.Tasks
 
 open VerifyArchive.Archive
 open VerifyArchive.Error
 
-let CHUNK_SIZE = 2 <<< 18
+let CHUNK_SIZE = 64
+
+let private processEntry tryOpenFile entry =
+    let filename = entry |> Entry.name
+    maybe {
+        let! file = tryOpenFile filename
+        return task {
+            use file = file
+            use zipFile = entry |> Entry.openStream
+            match! file |> StreamComparison.compare zipFile with
+            | Ok () -> return None
+            | Error error -> return Some (filename, error)
+        }
+    }
+    |> Option.defaultValue (Some (filename, Missing) |> Task.FromResult)
 
 let compare filesystemRoot (archive: Archive) = task {
     let tryOpenFile file =
@@ -21,30 +36,22 @@ let compare filesystemRoot (archive: Archive) = task {
     let tasks =
         archive
         |> Archive.entries
-        |> Seq.chunkBySize CHUNK_SIZE
-        |> Seq.map (
-            Seq.map (fun entry -> task {
-                let filename = entry |> Entry.name
-                match tryOpenFile filename with
-                | None -> return Some (filename, Missing)
-                | Some file ->
-                    use file = file
-                    use zipFile = entry |> Entry.openStream
-                    match! file |> StreamComparison.compare zipFile with
-                    | Ok () -> return None
-                    | Error error -> return Some (filename, error)
-            })
-        )
-    let! errors =
-        tasks
-        |> Seq.map (fun tasks -> task {
-            let! results = Task.WhenAll tasks
-            return results |> Seq.choose id
-        })
-        |> Task.WhenAll
-    let errors = errors |> Seq.concat
+        |> Seq.map (processEntry tryOpenFile)
 
-    if errors |> Seq.isEmpty
+    let mutable errors = []
+    for chunk in tasks |> Seq.chunkBySize CHUNK_SIZE do
+        let! results = Task.WhenAll chunk
+        let chunkErrors =
+            results
+            |> Seq.choose id
+            |> Seq.toList
+        if not (List.isEmpty chunkErrors) then errors <- chunkErrors :: errors
+
+    if errors |> List.isEmpty
     then return Ok ()
-    else return Error (errors |> List.ofSeq |> List.sortBy (fun (filename, _) -> filename))
+    else
+        return errors
+        |> List.collect id
+        |> List.sortBy (fun (filename, _) -> filename)
+        |> Error
 }
