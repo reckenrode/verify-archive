@@ -22,9 +22,8 @@ let compare filesystemRoot (archive: Archive) = task {
         archive
         |> Archive.entries
         |> Seq.chunkBySize CHUNK_SIZE
-        |> Seq.map (fun chunk ->
-            chunk
-            |> Array.map (fun entry -> task {
+        |> Seq.map (
+            Seq.map (fun entry -> task {
                 let filename = entry |> Entry.name
                 match tryOpenFile filename with
                 | None -> return Some (filename, Missing)
