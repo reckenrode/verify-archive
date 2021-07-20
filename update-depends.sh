@@ -1,6 +1,6 @@
 #!/bin/sh
 scriptpath=$(cd `dirname $0`; pwd)
-exec nix shell nixpkgs#ruby_3_0 -c \
+exec nix shell --inputs-from . nixpkgs#ruby_3_0 -c \
   /bin/sh -c "cd $scriptpath; tail -n +5 ./update-depends.sh | ruby"
 #!/usr/bin/env ruby
 require 'digest'
