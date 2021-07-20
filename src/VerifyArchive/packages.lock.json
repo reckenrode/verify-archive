@@ -8,6 +8,18 @@
         "resolved": "5.0.0",
         "contentHash": "iHoYXA0VaSQUONGENB1aVafjDDZDZpwu39MtaRCTrmwFW/cTcK0b2yKNVYneFHJMc3ChtsSoM9lNtJ1dYXkHfA=="
       },
+      "FSharpx.Extras": {
+        "type": "Direct",
+        "requested": "[3.*, )",
+        "resolved": "3.0.0",
+        "contentHash": "OhtlHRerkDJUDkflGMncMR4fJWEVQTbNGq0wJXS6zFzi71OVTtZfSytXyxY4VLNA2KiWONk+RKv/crELGtlgzw==",
+        "dependencies": {
+          "FSharp.Core": "4.6.2",
+          "FSharpx.Async": "1.14.1",
+          "FSharpx.Collections": "2.1.2",
+          "System.Reflection.Emit.Lightweight": "4.7.0"
+        }
+      },
       "Ply": {
         "type": "Direct",
         "requested": "[0.3.*, )",
@@ -34,6 +46,31 @@
           "system.memory": "4.5.4"
         }
       },
+      "FSharp.Control.AsyncSeq": {
+        "type": "Transitive",
+        "resolved": "2.0.21",
+        "contentHash": "Ebj5Uy+07R6+Nj4Dr1o/UrQqrAsNRAJ9AYEYnc8oEECxp/DBmt1oTK66e/s+caqnQ2mdF7a3U3YN4A48xqyOQA==",
+        "dependencies": {
+          "FSharp.Core": "4.3.2"
+        }
+      },
+      "FSharpx.Async": {
+        "type": "Transitive",
+        "resolved": "1.14.1",
+        "contentHash": "4MJz9KejMkozw6iKDOKgVJV81ZYCTF0K/1KBM7724GEnohNuMljhnP+IO8auzyCtg770TXAC25FFuJR/pUJdoQ==",
+        "dependencies": {
+          "FSharp.Control.AsyncSeq": "2.0.21",
+          "FSharp.Core": "4.6.2"
+        }
+      },
+      "FSharpx.Collections": {
+        "type": "Transitive",
+        "resolved": "2.1.2",
+        "contentHash": "gNsAqSmhj0pKkeLlZCQf4/LfSXSIH+lg9eQ2aN6Jt5t77oMZeH5IIJ3dshvMdHCtI+TbZvlv/3dyeOUwLd3Qkw==",
+        "dependencies": {
+          "FSharp.Core": "4.3.4"
+        }
+      },
       "Microsoft.CSharp": {
         "type": "Transitive",
         "resolved": "4.4.1",
@@ -43,6 +80,11 @@
         "type": "Transitive",
         "resolved": "4.5.4",
         "contentHash": "1MbJTHS1lZ4bS4FmsJjnuGJOu88ZzTT2rLvrhW7Ygic+pC0NWA+3hgAen0HRdsocuQXCkUTdFn9yHJJhsijDXw=="
+      },
+      "System.Reflection.Emit.Lightweight": {
+        "type": "Transitive",
+        "resolved": "4.7.0",
+        "contentHash": "a4OLB4IITxAXJeV74MDx49Oq2+PsF6Sml54XAFv+2RyWwtDBcabzoxiiJRhdhx+gaohLh4hEGCLQyBozXoQPqA=="
       },
       "System.Threading.Tasks.Extensions": {
         "type": "Transitive",

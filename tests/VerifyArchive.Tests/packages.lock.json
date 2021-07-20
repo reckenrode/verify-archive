@@ -39,6 +39,42 @@
           "System.Collections.Immutable": "[1.5.0, 5.1.0)"
         }
       },
+      "FSharp.Control.AsyncSeq": {
+        "type": "Transitive",
+        "resolved": "2.0.21",
+        "contentHash": "Ebj5Uy+07R6+Nj4Dr1o/UrQqrAsNRAJ9AYEYnc8oEECxp/DBmt1oTK66e/s+caqnQ2mdF7a3U3YN4A48xqyOQA==",
+        "dependencies": {
+          "FSharp.Core": "4.3.2"
+        }
+      },
+      "FSharpx.Async": {
+        "type": "Transitive",
+        "resolved": "1.14.1",
+        "contentHash": "4MJz9KejMkozw6iKDOKgVJV81ZYCTF0K/1KBM7724GEnohNuMljhnP+IO8auzyCtg770TXAC25FFuJR/pUJdoQ==",
+        "dependencies": {
+          "FSharp.Control.AsyncSeq": "2.0.21",
+          "FSharp.Core": "4.6.2"
+        }
+      },
+      "FSharpx.Collections": {
+        "type": "Transitive",
+        "resolved": "2.1.2",
+        "contentHash": "gNsAqSmhj0pKkeLlZCQf4/LfSXSIH+lg9eQ2aN6Jt5t77oMZeH5IIJ3dshvMdHCtI+TbZvlv/3dyeOUwLd3Qkw==",
+        "dependencies": {
+          "FSharp.Core": "4.3.4"
+        }
+      },
+      "FSharpx.Extras": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "OhtlHRerkDJUDkflGMncMR4fJWEVQTbNGq0wJXS6zFzi71OVTtZfSytXyxY4VLNA2KiWONk+RKv/crELGtlgzw==",
+        "dependencies": {
+          "FSharp.Core": "4.6.2",
+          "FSharpx.Async": "1.14.1",
+          "FSharpx.Collections": "2.1.2",
+          "System.Reflection.Emit.Lightweight": "4.7.0"
+        }
+      },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
         "resolved": "16.10.0",
@@ -330,14 +366,8 @@
       },
       "System.Reflection.Emit.Lightweight": {
         "type": "Transitive",
-        "resolved": "4.0.1",
-        "contentHash": "sSzHHXueZ5Uh0OLpUQprhr+ZYJrLPA2Cmr4gn0wj9+FftNKXx8RIMKvO9qnjk2ebPYUjZ+F2ulGdPOsvj+MEjA==",
-        "dependencies": {
-          "System.Reflection": "4.1.0",
-          "System.Reflection.Emit.ILGeneration": "4.0.1",
-          "System.Reflection.Primitives": "4.0.1",
-          "System.Runtime": "4.1.0"
-        }
+        "resolved": "4.7.0",
+        "contentHash": "a4OLB4IITxAXJeV74MDx49Oq2+PsF6Sml54XAFv+2RyWwtDBcabzoxiiJRhdhx+gaohLh4hEGCLQyBozXoQPqA=="
       },
       "System.Reflection.Extensions": {
         "type": "Transitive",
@@ -540,6 +570,7 @@
         "type": "Project",
         "dependencies": {
           "FSharp.Core": "5.0.0",
+          "FSharpx.Extras": "3.0.0",
           "Ply": "0.3.0",
           "SharpZipLib": "1.0.0",
           "System.CommandLine": "2.0.0-beta1.21308.1"

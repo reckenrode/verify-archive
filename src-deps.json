@@ -3,6 +3,10 @@
     "version": "5.0.0",
     "hash": "sha256-HYn+BzwplXow+tl9ziT5MHYcMmuWonqczReUxHKaEoM="
   },
+  "FSharpx.Extras": {
+    "version": "3.0.0",
+    "hash": "sha256-P42JVhvRpCWcn/BxDNKnHj1HyUxDlHnn8KryxZOlRIA="
+  },
   "Ply": {
     "version": "0.3.1",
     "hash": "sha256-RpLtDGUggvo7cSKOgzJ6WzU+KBueGPkRorvLMnRxFu0="
@@ -15,6 +19,18 @@
     "version": "2.0.0-beta1.21308.1",
     "hash": "sha256-14pgyMy3F86XickXZB+AMX6uMTkVvBg5tV90p1G+4yY="
   },
+  "FSharp.Control.AsyncSeq": {
+    "version": "2.0.21",
+    "hash": "sha256-l+K9Lgb6y77xhYGwCh8YIdeE92qWRfFU4X/anWMqGME="
+  },
+  "FSharpx.Async": {
+    "version": "1.14.1",
+    "hash": "sha256-bDZb/ppG8N1L88enRqcy6wIhB+O+5vWPj6c2jfYlDtQ="
+  },
+  "FSharpx.Collections": {
+    "version": "2.1.2",
+    "hash": "sha256-lpYsKn5RVjMVv33W3ZMcwfXVs+tYWtRCipOjJBUx82I="
+  },
   "Microsoft.CSharp": {
     "version": "4.4.1",
     "hash": "sha256-7/gsQHWAuFWrcVpVharASTNL+Mvl6Gw+AAw41k0MzXw="
@@ -22,6 +38,10 @@
   "System.Memory": {
     "version": "4.5.4",
     "hash": "sha256-3sCEfzO4gj5CYGctl9ZXQRRhwAraMQfse7yzKoRe65E="
+  },
+  "System.Reflection.Emit.Lightweight": {
+    "version": "4.7.0",
+    "hash": "sha256-V0Wz/UUoNIHdTGS9e1TR89u58zJjo/wPUWw6VaVyclU="
   },
   "System.Threading.Tasks.Extensions": {
     "version": "4.5.4",
