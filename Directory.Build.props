@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Product>VerifyArchive</Product>
-    <VersionPrefix>0.1.2</VersionPrefix>
+    <VersionPrefix>0.1.3</VersionPrefix>
   </PropertyGroup>
 
   <PropertyGroup>
