@@ -18,11 +18,13 @@ let compare filesystemRoot (archive: Archive) = task {
         with
         | :? IOException -> None
 
-    let mutable errors = []
-    for chunk in archive |> Archive.entries |> Seq.chunkBySize CHUNK_SIZE do
-        let! results =
+    let tasks =
+        archive
+        |> Archive.entries
+        |> Seq.chunkBySize CHUNK_SIZE
+        |> Seq.map (fun chunk ->
             chunk
-            |> Seq.map (fun entry -> task {
+            |> Array.map (fun entry -> task {
                 let filename = entry |> Entry.name
                 match tryOpenFile filename with
                 | None -> return Some (filename, Missing)
@@ -33,12 +35,17 @@ let compare filesystemRoot (archive: Archive) = task {
                     | Ok () -> return None
                     | Error error -> return Some (filename, error)
             })
-            |> Task.WhenAll
-        results
-        |> Seq.choose id
-        |> Seq.iter (fun error -> errors <- error :: errors)
+        )
+    let! errors =
+        tasks
+        |> Seq.map (fun tasks -> task {
+            let! results = Task.WhenAll tasks
+            return results |> Seq.choose id
+        })
+        |> Task.WhenAll
+    let errors = errors |> Seq.concat
 
-    if errors |> List.isEmpty
+    if errors |> Seq.isEmpty
     then return Ok ()
-    else return Error (errors |> List.sortBy (fun (filename, _) -> filename))
+    else return Error (errors |> List.ofSeq |> List.sortBy (fun (filename, _) -> filename))
 }
