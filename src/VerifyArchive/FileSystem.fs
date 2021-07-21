@@ -4,7 +4,6 @@ module VerifyArchive.FileSystem
 
 open FSharp.Control.Tasks.Affine
 open FSharpx.Option
-open FSharpx.Text
 open System.IO
 open System.Threading.Tasks
 open System.Text.RegularExpressions
