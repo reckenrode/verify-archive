@@ -58,6 +58,6 @@ let compare filesystemRoot (archive: Archive) = task {
     else
         return errors
         |> List.collect id
-        |> List.sortBy (fun (filename, _) -> filename)
+        |> List.sortBy fst
         |> Error
 }
