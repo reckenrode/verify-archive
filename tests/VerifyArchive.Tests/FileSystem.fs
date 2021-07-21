@@ -3,6 +3,7 @@
 module VerifyArchive.Tests.FileSystem
 
 open Expecto
+open FSharpx.Prelude
 open System.IO
 
 open VerifyArchive.Archive
@@ -188,6 +189,30 @@ let tests = testList "VerifyArchive.ZipArchive" [
             let! result = zip |> compare filesPath.FullName
 
             Expect.equal result expected "file 2 does not match"
+        }
+
+        testTask "when the file’s name contains “\\” and the archive’s “_-backslash-_”, \
+                  and they are the same, then they match" {
+            let expected = Ok ()
+
+            use workingDirectory = TemporaryDirectory ()
+            let workingPath = workingDirectory.Path.FullName
+
+            let files = workingPath |> setUpPath [
+                "some file\\slash", "the contents"
+            ]
+            use zip =
+                workingPath
+                |> zipTestFiles [
+                "some file_-backslash-_slash", "the contents"
+                ]
+                |> File.OpenRead
+                |> Zip.openRead
+                |> (flip Expect.wantOk "the zip was opened")
+
+            let! result = zip |> compare files.FullName
+
+            Expect.equal result expected "the files match"
         }
     ]
 ]
