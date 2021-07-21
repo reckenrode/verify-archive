@@ -1,0 +1,12 @@
+# Editor Stuff
+.idea
+.vscode
+
+# Cargo
+/target
+
+# direnv
+.direnv
+
+# macOS
+.DS_Store
