@@ -4,6 +4,7 @@ module VerifyArchive.FileSystem
 
 open FSharp.Control.Tasks.Affine
 open FSharpx.Option
+open FSharpx.Prelude
 open System.IO
 open System.Threading.Tasks
 open System.Text.RegularExpressions
@@ -16,9 +17,11 @@ let CHUNK_SIZE = 64
 let BACKSLASH_REGEX = Regex ("_-backslash-_", RegexOptions.Compiled)
 
 let private processEntry tryOpenFile entry =
-    let filename = BACKSLASH_REGEX.Replace (entry|> Entry.name, "\\")
+    let filename = entry|> Entry.name
     maybe {
-        let! file = tryOpenFile filename
+        let! file =
+            tryOpenFile filename
+            |> Option.orElseWith (fun () -> tryOpenFile <| BACKSLASH_REGEX.Replace (filename, "\\"))
         return task {
             use file = file
             use zipFile = entry |> Entry.openStream
