@@ -10,7 +10,7 @@
     <Compile Include="Utility.fs" />
     <Compile Include="Archive.fs" />
     <Compile Include="FileSystem.fs" />
-    <Compile Include="StreamComparison.fs" />
+    <Compile Include="Stream.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

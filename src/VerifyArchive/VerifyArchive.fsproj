@@ -9,7 +9,7 @@
   <ItemGroup>
     <Compile Include="Error.fs" />
     <Compile Include="Archive.fs" />
-    <Compile Include="StreamComparison.fs" />
+    <Compile Include="Stream.fs" />
     <Compile Include="FileSystem.fs" />
     <Compile Include="Commands.fs" />
     <Compile Include="Cli.fs" />

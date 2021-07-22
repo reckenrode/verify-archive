@@ -5,7 +5,7 @@ module VerifyArchive.Tests.StreamComparison
 open Expecto
 open System.IO
 
-open VerifyArchive.StreamComparison
+open VerifyArchive.Stream
 open VerifyArchive.Error
 
 [<Tests>]

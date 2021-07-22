@@ -25,7 +25,7 @@ let private processEntry tryOpenFile entry =
         return task {
             use file = file
             use zipFile = entry |> Entry.openStream
-            match! file |> StreamComparison.compare zipFile with
+            match! file |> Stream.compare zipFile with
             | Ok () -> return None
             | Error error -> return Some (filename, error)
         }
