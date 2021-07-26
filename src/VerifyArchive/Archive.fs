@@ -10,7 +10,6 @@ open System.IO
 open System.Text.RegularExpressions
 
 open VerifyArchive.Error
-open VerifyArchive.Stream
 
 type DifferenceType =
     | Mismatch
@@ -27,7 +26,7 @@ type Entry = {
 }
 
 type Archive = {
-    Entries: unit -> seq<Entry>
+    Entries: unit -> AsyncSeq<Entry>
     Close: unit -> unit
 }
 with
@@ -72,14 +71,14 @@ module Archive =
             |> Option.defaultValue (async { return Some { filename = filename; ``type`` = Missing } })
 
         asyncSeq {
-            for entry in archive |> entries |> Seq.map processEntry do
-                match! entry with
+            for entry in archive |> entries |> AsyncSeq.mapAsync processEntry do
+                match entry with
                 | Some error -> yield error
                 | None -> ()
         }
 
 module Zip =
-    let private liftEntryEnumerator (it: ZipFile) () = seq {
+    let private liftEntryEnumerator (it: ZipFile) () = asyncSeq {
         for entry in it |> Seq.cast<ZipEntry> do
             yield { Name = entry.Name; Open = (fun () -> it.GetInputStream entry) }
     }
