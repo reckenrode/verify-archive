@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.*" />
     <PackageReference Include="FSharpx.Extras" Version="3.*" />
     <PackageReference Include="Ply" Version="0.3.*" />
     <PackageReference Include="SharpZipLib" Version="1.*" />

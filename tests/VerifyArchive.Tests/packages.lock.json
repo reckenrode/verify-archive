@@ -43,8 +43,8 @@
       "YoloDev.Expecto.TestSdk": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.12.3",
-        "contentHash": "SqiH6o7Ta+98kfclOtCqFb4BLrLfwev28QgFJ9jXxN595IA2muF16HA1FQTnU+yyicxJKPSEghobL+lpr8nDJg==",
+        "resolved": "0.12.4",
+        "contentHash": "c8dVMOMe2lTnGpk5PTpnM72u1A8HglEtAl9g4BIAwEkdgODuQPHPsE+5eV6tFtUsnCodNMZTWEKOJs/YWTn6kQ==",
         "dependencies": {
           "Expecto": "[9.0.0, 10.0.0)",
           "FSharp.Core": "4.6.0",
@@ -53,8 +53,8 @@
       },
       "FSharp.Control.AsyncSeq": {
         "type": "Transitive",
-        "resolved": "2.0.21",
-        "contentHash": "Ebj5Uy+07R6+Nj4Dr1o/UrQqrAsNRAJ9AYEYnc8oEECxp/DBmt1oTK66e/s+caqnQ2mdF7a3U3YN4A48xqyOQA==",
+        "resolved": "3.0.5",
+        "contentHash": "HsYxx8aLsmlfnd+M/O0Fh8Atk5G5lh15R5c/5wTz8B4o0TzI7LOoAFrsytgEAaJdpHEJ0JJaq+pnSSnb6hC9YQ==",
         "dependencies": {
           "FSharp.Core": "4.3.2"
         }
@@ -570,6 +570,7 @@
       "verifyarchive": {
         "type": "Project",
         "dependencies": {
+          "FSharp.Control.AsyncSeq": "3.0.0",
           "FSharp.Core": "5.0.0",
           "FSharpx.Extras": "3.0.0",
           "Ply": "0.3.0",
