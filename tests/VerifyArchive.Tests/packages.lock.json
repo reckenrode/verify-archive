@@ -51,6 +51,11 @@
           "System.Collections.Immutable": "[1.5.0, 5.1.0)"
         }
       },
+      "Blake3": {
+        "type": "Transitive",
+        "resolved": "0.3.0",
+        "contentHash": "GMqNz4y9l/b7tgI3hsGANNCH/nSQGT23ieQcOzMw2RPWY/Pw7gUhjCsExHqe2LzoGDds5OpXccW84MGbEX0Png=="
+      },
       "FSharp.Control.AsyncSeq": {
         "type": "Transitive",
         "resolved": "3.0.5",
@@ -570,6 +575,7 @@
       "verifyarchive": {
         "type": "Project",
         "dependencies": {
+          "Blake3": "0.3.0",
           "FSharp.Control.AsyncSeq": "3.0.0",
           "FSharp.Core": "5.0.0",
           "FSharpx.Extras": "3.0.0",

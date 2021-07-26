@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v5.0": {
+      "Blake3": {
+        "type": "Direct",
+        "requested": "[0.3.*, )",
+        "resolved": "0.3.0",
+        "contentHash": "GMqNz4y9l/b7tgI3hsGANNCH/nSQGT23ieQcOzMw2RPWY/Pw7gUhjCsExHqe2LzoGDds5OpXccW84MGbEX0Png=="
+      },
       "FSharp.Control.AsyncSeq": {
         "type": "Direct",
         "requested": "[3.*, )",
