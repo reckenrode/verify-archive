@@ -16,3 +16,6 @@ description = "Compare Backblaze backup archives to the local filesystem for dis
 blake3 = "1"
 tokio = { version = "1", features = ["full"] }
 zip = "0.5.13"
+
+[dev-dependencies]
+tempfile = "3.2"
