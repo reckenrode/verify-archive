@@ -47,7 +47,7 @@ let tests = testList "VerifyArchive.Archive" [
     ]
 
     testList "reading zip archives" [
-        test "when the file is empty, then there are no entries" {
+        testAsync "when the file is empty, then there are no entries" {
             let expected = true
 
             use workingDirectory = TemporaryDirectory ()
@@ -56,15 +56,15 @@ let tests = testList "VerifyArchive.Archive" [
             let zip = workingPath |> zipTestFiles [] |> File.OpenRead |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was read"
 
-            let entries = zip |> Archive.entries
-            let hasEntries = entries |> Seq.isEmpty
+            let! entries = zip |> Archive.entries |> AsyncSeq.toListAsync
+            let hasEntries = entries |> List.isEmpty
 
             Expect.equal hasEntries expected "the zip has no entries"
         }
     ]
 
     testList "archive entries" [
-        test "when the zip has entries, then it has the same number of entries" {
+        testAsync "when the zip has entries, then it has the same number of entries" {
             let expected = [
                 "test 1", "some data"
                 "test 2", "more data"
@@ -78,12 +78,12 @@ let tests = testList "VerifyArchive.Archive" [
             let zip = File.OpenRead zip |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was read"
 
-            let entries = zip |> Archive.entries
+            let! entries = zip |> Archive.entries |> AsyncSeq.toListAsync
 
-            Expect.equal (Seq.length entries) (List.length expected) "the lengths match"
+            Expect.equal (List.length entries) (List.length expected) "the lengths match"
         }
 
-        test "when the zip has entries, then it has matching data for the entries" {
+        testAsync "when the zip has entries, then it has matching data for the entries" {
             let expected = [
                 "test 1", "some data"
                 "test 2", "more data"
@@ -97,7 +97,7 @@ let tests = testList "VerifyArchive.Archive" [
             let zip = File.OpenRead zip |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was read"
 
-            let entries = zip |> Archive.entries
+            let! entries = zip |> Archive.entries |> AsyncSeq.toListAsync
 
             for entry, (name, data) in (entries, expected) ||> Seq.zip do
                 Expect.equal (Entry.name entry) name "the names match"
