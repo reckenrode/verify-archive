@@ -25,7 +25,7 @@ let private openArchive (archive: FileInfo) =
 
 let private renderError = function
     | { filename = filename; ``type`` = Mismatch } ->
-        (Path.GetDirectoryName filename, $"“{Path.GetFileName filename}” does not match")
+        (Path.GetDirectoryName filename, $"- “{Path.GetFileName filename}” does not match")
     | { filename = filename; ``type`` = Missing } ->
         (Path.GetDirectoryName filename, $"- “{Path.GetFileName filename}” is missing")
 
