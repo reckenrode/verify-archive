@@ -2,12 +2,13 @@
 
 module VerifyArchive.Commands
 
+open FSharp.Control
 open FSharp.Control.Tasks.Affine
 open System.CommandLine
 open System.IO
 
 open VerifyArchive.Archive
-open VerifyArchive.Error
+open VerifyArchive.FileSystem
 
 type Options = {
     input: FileInfo
@@ -25,24 +26,28 @@ let private openArchive (archive: FileInfo) =
 
 let (|Basename|) : string -> string = Path.GetFileName
 
-let private formatErrors errors =
-    errors
-    |> Seq.map (function
-        | Basename filename, Mismatch (sourceHash, backupHash) ->
-            $"- “{filename}” mismatch, {sourceHash.[0..7]} ≠ {backupHash.[0..7]}"
-        | Basename filename, _ ->
-            $"- “{filename}” is missing")
-    |> String.concat "\n"
+let private formatErrors error = async {
+    return match error with
+            | { filename = filename; ``type`` = Mismatch } ->
+                (filename, $"- “{Path.GetFileName filename}” does not match")
+            | { filename = filename; ``type`` = Missing } ->
+                (filename, $"- “{Path.GetFileName filename}” is missing")
+}
 
-let private formatFailure (path, errors) =
-    $"{path}\n{formatErrors errors}\n"
+let private renderErrors (directory, errors) = async {
+    let! errors =
+        errors
+        |> AsyncSeq.mapAsyncParallel formatErrors
+        |> AsyncSeq.toListAsync
+    return (directory, errors |> List.map snd |> String.concat "\n")
+}
 
-let private showComparisonFailures (failures: list<string * Error>) (console: IConsole) =
-    failures
-    |> Seq.groupBy (fst >> Path.GetDirectoryName)
-    |> Seq.map formatFailure
-    |> String.concat "\n"
-    |> console.Error.Write
+let private showDifferences diffs (console: IConsole) =
+    let diffs =
+        diffs
+        |> List.map (fun (path, errors) -> $"{path}\n{errors}\n")
+        |> String.concat "\n"
+    console.Error.Write $"{diffs}"
     -1
 
 let private showError msg (console: IConsole) =
@@ -57,7 +62,14 @@ let verify (options: Options) (console: IConsole) = task {
     match options.input |> openArchive with
     | Error msg -> return console |> showError msg
     | Ok zip ->
-        match! zip |> FileSystem.compare options.root.FullName with
-        | Ok () -> return console |> showSuccess
-        | Error errors -> return console |> showComparisonFailures errors
+        let! diffs =
+            zip
+            |> FileSystem.differences options.root.FullName
+            |> AsyncSeq.groupBy (fun result -> Path.GetDirectoryName result.filename)
+            |> AsyncSeq.mapAsyncParallel renderErrors
+            |> AsyncSeq.toListAsync
+
+        if diffs |> List.isEmpty
+        then return console |> showSuccess
+        else return console |> showDifferences diffs
 }

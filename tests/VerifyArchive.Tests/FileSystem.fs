@@ -3,18 +3,18 @@
 module VerifyArchive.Tests.FileSystem
 
 open Expecto
+open FSharp.Control
 open FSharpx.Prelude
 open System.IO
 
 open VerifyArchive.Archive
-open VerifyArchive.Error
 open VerifyArchive.FileSystem
 open VerifyArchive.Tests.Utility
 
 [<Tests>]
 let tests = testList "VerifyArchive.ZipArchive" [
-    testTask "empty archive, returns success" {
-        let expected = Ok ()
+    testAsync "empty archive, returns success" {
+        let expected = []
 
         use workingDirectory = TemporaryDirectory ()
 
@@ -25,18 +25,18 @@ let tests = testList "VerifyArchive.ZipArchive" [
             |> Zip.openRead
         use emptyZip = Expect.wantOk emptyZip "the zip was opened"
 
-        let! result = emptyZip |> compare "/"
+        let! result = emptyZip |> differences "/" |> AsyncSeq.toListAsync
 
         Expect.equal result expected "everything matches"
     }
 
     testList "archive with files" [
-        testTask "when the file system has the same files, then they match" {
+        testAsync "when the file system has the same files, then they match" {
             let inputFiles = [
                 "file 1", "this is a test"
                 "file 2", "this is another test"
             ]
-            let expected = Ok ()
+            let expected = []
 
             use workingDirectory = TemporaryDirectory ()
             let workingPath = workingDirectory.Path.FullName
@@ -49,13 +49,13 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was opened"
 
-            let! result = zip |> compare filesPath.FullName
+            let! result = zip |> differences filesPath.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "everything matches"
         }
 
-        testTask "when the file system has the same files and extra, then they still match" {
-            let expected = Ok ()
+        testAsync "when the file system has the same files and extra, then they still match" {
+            let expected = []
 
             use workingDirectory = TemporaryDirectory ()
             let workingPath = workingDirectory.Path.FullName
@@ -75,17 +75,14 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was opened"
 
-            let! result = zip |> compare filesPath.FullName
+            let! result = zip |> differences filesPath.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "everything matches"
         }
 
-        testTask "when the file system has different files, then they do not match" {
-            let expected = Error [
-                "file 2", Mismatch (
-                    sourceHash = "f69bff44070ba35d7169196ba0095425979d96346a31486b507b4a3f77bd356d",
-                    backupHash = "f2415a036b22d43d4d383fc9e0263d9a98556318f1e315370e6b9770862992a4"
-                )
+        testAsync "when the file system has different files, then they do not match" {
+            let expected = [
+                { filename = "file 2"; ``type`` = Mismatch }
             ]
 
             use workingDirectory = TemporaryDirectory ()
@@ -105,14 +102,14 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was opened"
 
-            let! result = zip |> compare filesPath.FullName
+            let! result = zip |> differences filesPath.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "file 2 does not match"
         }
 
-        testTask "when the file system is missing files, then they do not match" {
-            let expected = Error [
-                "file 2", Missing
+        testAsync "when the file system is missing files, then they do not match" {
+            let expected = [
+                { filename = "file 2"; ``type`` = Missing }
             ]
 
             use workingDirectory = TemporaryDirectory ()
@@ -131,17 +128,17 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was opened"
 
-            let! result = zip |> compare filesPath.FullName
+            let! result = zip |> differences filesPath.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "file 2 does not match"
         }
 
-        testTask "when the files are in directories and are the same, then they match" {
+        testAsync "when the files are in directories and are the same, then they match" {
             let inputFiles = [
                 Path.Combine ("directory 1", "file 1"), "this is a test"
                 Path.Combine ("directory 2", "directory 3", "file 2"), "this is another test"
             ]
-            let expected = Ok ()
+            let expected = []
 
             use workingDirectory = TemporaryDirectory ()
             let workingPath = workingDirectory.Path.FullName
@@ -154,18 +151,15 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was opened"
 
-            let! result = zip |> compare filesPath.FullName
+            let! result = zip |> differences filesPath.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "everything matches"
         }
 
-        testTask "when the files are in directories and are not the same, then they don’t match" {
-            let expected = Error [
-                Path.Combine ("directory 2", "file 2"), Mismatch (
-                    sourceHash = "f69bff44070ba35d7169196ba0095425979d96346a31486b507b4a3f77bd356d",
-                    backupHash = "f2415a036b22d43d4d383fc9e0263d9a98556318f1e315370e6b9770862992a4"
-                )
-                Path.Combine ("directory 3", "directory 4", "file 3"), Missing
+        testAsync "when the files are in directories and are not the same, then they don’t match" {
+            let expected = [
+                { filename = Path.Combine ("directory 2", "file 2"); ``type`` = Mismatch }
+                { filename = Path.Combine ("directory 3", "directory 4", "file 3"); ``type`` = Missing }
             ]
 
             use workingDirectory = TemporaryDirectory ()
@@ -186,14 +180,14 @@ let tests = testList "VerifyArchive.ZipArchive" [
                 |> Zip.openRead
             use zip = Expect.wantOk zip "the zip was opened"
 
-            let! result = zip |> compare filesPath.FullName
+            let! result = zip |> differences filesPath.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "file 2 does not match"
         }
 
-        testTask "when the file’s name contains “\\” and the archive’s “_-backslash-_”, \
+        testAsync "when the file’s name contains “\\” and the archive’s “_-backslash-_”, \
                   and they are the same, then they match" {
-            let expected = Ok ()
+            let expected = []
 
             use workingDirectory = TemporaryDirectory ()
             let workingPath = workingDirectory.Path.FullName
@@ -204,13 +198,13 @@ let tests = testList "VerifyArchive.ZipArchive" [
             use zip =
                 workingPath
                 |> zipTestFiles [
-                "some file_-backslash-_slash", "the contents"
+                    "some file_-backslash-_slash", "the contents"
                 ]
                 |> File.OpenRead
                 |> Zip.openRead
                 |> (flip Expect.wantOk "the zip was opened")
 
-            let! result = zip |> compare files.FullName
+            let! result = zip |> differences files.FullName |> AsyncSeq.toListAsync
 
             Expect.equal result expected "the files match"
         }
