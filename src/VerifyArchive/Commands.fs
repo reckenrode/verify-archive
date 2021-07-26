@@ -23,28 +23,20 @@ let private openArchive (archive: FileInfo) =
     with
     | :? IOException -> Error $"ERROR: could not open {archive}"
 
-let (|Basename|) : string -> string = Path.GetFileName
-
-let private formatErrors error = async {
-    return match error with
-            | { filename = filename; ``type`` = Mismatch } ->
-                (filename, $"- “{Path.GetFileName filename}” does not match")
-            | { filename = filename; ``type`` = Missing } ->
-                (filename, $"- “{Path.GetFileName filename}” is missing")
-}
-
-let private renderErrors (directory, errors) = async {
-    let! errors =
-        errors
-        |> AsyncSeq.mapAsyncParallel formatErrors
-        |> AsyncSeq.toListAsync
-    return (directory, errors |> List.map snd |> String.concat "\n")
-}
+let private renderError = function
+    | { filename = filename; ``type`` = Mismatch } ->
+        (Path.GetDirectoryName filename, $"“{Path.GetFileName filename}” does not match")
+    | { filename = filename; ``type`` = Missing } ->
+        (Path.GetDirectoryName filename, $"- “{Path.GetFileName filename}” is missing")
 
 let private showDifferences diffs (console: IConsole) =
     let diffs =
         diffs
-        |> List.map (fun (path, errors) -> $"{path}\n{errors}\n")
+        |> List.groupBy fst
+        |> List.sortBy fst
+        |> List.map (fun (path, errors) ->
+            let errors = errors |> List.map snd |> List.sort |> String.concat "\n"
+            $"{path}\n{errors}\n")
         |> String.concat "\n"
     console.Error.Write $"{diffs}"
     -1
@@ -64,8 +56,7 @@ let verify (options: Options) (console: IConsole) = task {
         let! diffs =
             zip
             |> Archive.differences options.root.FullName
-            |> AsyncSeq.groupBy (fun result -> Path.GetDirectoryName result.filename)
-            |> AsyncSeq.mapAsyncParallel renderErrors
+            |> AsyncSeq.map renderError
             |> AsyncSeq.toListAsync
 
         if diffs |> List.isEmpty
