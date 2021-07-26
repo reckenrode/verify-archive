@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Archive.fs" />
+    <Compile Include="Error.fs" />
     <Compile Include="Stream.fs" />
-    <Compile Include="FileSystem.fs" />
+    <Compile Include="Archive.fs" />
     <Compile Include="Commands.fs" />
     <Compile Include="Cli.fs" />
     <Compile Include="Program.fs" />

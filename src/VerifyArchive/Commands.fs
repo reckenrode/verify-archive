@@ -8,7 +8,6 @@ open System.CommandLine
 open System.IO
 
 open VerifyArchive.Archive
-open VerifyArchive.FileSystem
 
 type Options = {
     input: FileInfo
@@ -64,7 +63,7 @@ let verify (options: Options) (console: IConsole) = task {
     | Ok zip ->
         let! diffs =
             zip
-            |> FileSystem.differences options.root.FullName
+            |> Archive.differences options.root.FullName
             |> AsyncSeq.groupBy (fun result -> Path.GetDirectoryName result.filename)
             |> AsyncSeq.mapAsyncParallel renderErrors
             |> AsyncSeq.toListAsync
