@@ -1,4 +1,12 @@
 {
+  "Blake3": {
+    "version": "0.3.0",
+    "hash": "sha256-+k1Q0RxEdnL4Ul2rLm2FWIP87gfRbuXrkOlTf/BFZMI="
+  },
+  "FSharp.Control.AsyncSeq": {
+    "version": "3.0.5",
+    "hash": "sha256-rRMGId1Y0IARHG9KmRoK0CDpDQDmITqiEvhinoHnZdU="
+  },
   "FSharp.Core": {
     "version": "5.0.0",
     "hash": "sha256-HYn+BzwplXow+tl9ziT5MHYcMmuWonqczReUxHKaEoM="
@@ -18,10 +26,6 @@
   "System.CommandLine": {
     "version": "2.0.0-beta1.21308.1",
     "hash": "sha256-14pgyMy3F86XickXZB+AMX6uMTkVvBg5tV90p1G+4yY="
-  },
-  "FSharp.Control.AsyncSeq": {
-    "version": "2.0.21",
-    "hash": "sha256-l+K9Lgb6y77xhYGwCh8YIdeE92qWRfFU4X/anWMqGME="
   },
   "FSharpx.Async": {
     "version": "1.14.1",
