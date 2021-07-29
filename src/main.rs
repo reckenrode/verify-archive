@@ -2,6 +2,7 @@
 
 mod digest;
 mod fs;
+mod zip;
 
 fn main() {
     println!("Hello, world!");
