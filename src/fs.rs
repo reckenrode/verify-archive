@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use async_stream::try_stream;
+use async_stream::stream;
 use blake3::Hash;
 use futures_core::stream::Stream;
 use tokio::{fs::File, io};
@@ -12,18 +12,24 @@ use crate::digest::b3sum;
 fn hash_files(
     paths: impl IntoIterator<Item = impl AsRef<Path>>,
 ) -> impl Stream<Item = io::Result<Hash>> {
-    try_stream! {
+    stream! {
         for ref path in paths {
-            let mut file = File::open(path).await?;
-            let hash = b3sum(&mut file).await?;
-            yield hash
+            match File::open(path).await {
+                Ok(mut file) => {
+                    let hash = b3sum(&mut file).await?;
+                    yield Ok(hash)
+                },
+                Err(error) => {
+                    yield Err(error)
+                },
+            }
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::{path::PathBuf};
+    use std::path::PathBuf;
 
     use futures_util::{pin_mut, StreamExt};
     use tempfile::{tempdir, TempDir};
@@ -110,10 +116,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn sequence_with_errors_stops() -> io::Result<()> {
+    async fn sequence_with_missing_files_continues() -> io::Result<()> {
         let expected = vec![
             Ok("cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323".to_owned()),
             Err(io::ErrorKind::NotFound),
+            Ok("7b7e5f11be694b5d2b630bb648b74ce91cee8b56aa773015474a86f451d8f335".to_owned()),
+            Ok("9400c17d43042a4546cbb8c251f122888e3ed53403096fde646adcd7370ba21e".to_owned()),
         ];
 
         let (_work_dir, mut files) = set_up_source_files([
