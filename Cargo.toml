@@ -15,6 +15,7 @@ description = "Compare Backblaze backup archives to the local filesystem for dis
 [dependencies]
 async-stream = "0.3.2"
 blake3 = "1"
+clap = "3.0.0-beta.2"
 futures-core = "0.3"
 futures-util = "0.3"
 tokio = { version = "1", features = ["full"] }
