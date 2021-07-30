@@ -3,7 +3,7 @@
 use std::io::Read;
 
 use blake3::{Hash, Hasher};
-use tokio::{io::{self, AsyncRead, AsyncReadExt}, task::spawn_blocking};
+use tokio::{io::{self, AsyncRead, AsyncReadExt}};
 
 pub async fn b3sum(reader: &mut (impl AsyncRead + Unpin)) -> io::Result<Hash> {
     let mut hasher = Hasher::new();
