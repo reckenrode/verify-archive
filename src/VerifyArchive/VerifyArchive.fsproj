@@ -9,7 +9,6 @@
   <ItemGroup>
     <Compile Include="Error.fs" />
     <Compile Include="Blake3.fs" />
-    <Compile Include="Stream.fs" />
     <Compile Include="Archive.fs" />
     <Compile Include="Commands.fs" />
     <Compile Include="Cli.fs" />
