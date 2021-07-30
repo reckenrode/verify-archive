@@ -5,14 +5,15 @@ use std::io;
 use std::path::Path;
 
 use blake3::Hash;
+use rayon::iter::{IndexedParallelIterator, IntoParallelIterator};
 
 use crate::digest::b3sum;
 
 pub fn hash_files(
-    paths: impl IntoIterator<Item = impl AsRef<Path>>,
-) -> impl Iterator<Item = io::Result<Hash>> {
+    paths: impl IndexedParallelIterator<Item = impl AsRef<Path>>,
+) -> impl IndexedParallelIterator<Item = io::Result<Hash>> {
     paths
-        .into_iter()
+        .into_par_iter()
         .map(|path| match File::open(path.as_ref()) {
             Ok(mut file) => {
                 let hash = b3sum(&mut file)?;
@@ -26,6 +27,7 @@ pub fn hash_files(
 mod tests {
     use std::{io::Write, path::PathBuf};
 
+    use rayon::iter::ParallelIterator;
     use tempfile::{tempdir, TempDir};
 
     use super::*;
@@ -48,27 +50,26 @@ mod tests {
     fn empty_sequence_returns_no_hashes() -> io::Result<()> {
         let files: &[&Path] = &[];
 
-        let mut stream = hash_files(files);
-        let result = stream.next();
+        let stream = hash_files(files.into_par_iter());
+        let result = stream.count();
 
-        assert_eq!(result.is_none(), true);
+        assert_eq!(result, 0);
 
         Ok(())
     }
 
     #[test]
     fn sequence_with_one_item_returns_one_hash() -> io::Result<()> {
-        let expected = "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323";
+        let expected = vec!["cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323"];
 
         let (_work_dir, files) = set_up_source_files([("file 1", "file 1 contents")])?;
 
-        let mut stream = hash_files(files);
-        let result = stream.next().map(|o| o.expect("file hashed").to_string());
-        let next = stream.next();
+        let stream = hash_files(files.into_par_iter());
+        let result = stream
+            .map(|o| o.expect("file hashed").to_string())
+            .collect::<Vec<_>>();
 
-        assert_eq!(result.expect("is some"), expected);
-        assert_eq!(next.is_none(), true);
-
+        assert_eq!(result, expected);
         Ok(())
     }
 
@@ -86,7 +87,7 @@ mod tests {
             ("file 3", "more test data"),
         ])?;
 
-        let stream = hash_files(files);
+        let stream = hash_files(files.into_par_iter());
         let result = stream.collect::<Vec<_>>();
         let result = result
             .into_iter()
@@ -115,7 +116,7 @@ mod tests {
 
         files.insert(1, "file 2".into());
 
-        let stream = hash_files(files);
+        let stream = hash_files(files.into_par_iter());
         let result = stream.collect::<Vec<_>>();
         let result = result
             .into_iter()

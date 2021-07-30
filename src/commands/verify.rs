@@ -6,7 +6,7 @@ use std::{cmp::Ordering, ffi::OsStr, fs::File, path::PathBuf};
 
 use blake3::Hash;
 use itertools::Itertools;
-use rayon::iter::{ParallelBridge, ParallelIterator};
+use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 
 use zip::{
     result::{ZipError, ZipResult},
@@ -86,14 +86,13 @@ pub fn verify(options: Opts) -> io::Result<()> {
     let files = file_names(&mut archive)?;
 
     let paths = files.clone();
-    let fs_checksums = fs::hash_files(files.into_iter().map(|file| root.join(file)));
+    let fs_checksums = fs::hash_files(files.into_par_iter().map(|file| root.join(file)));
     let zip_checksums = crate::zip::hash_files(archive);
 
     let mut differences = paths
-        .into_iter()
+        .into_par_iter()
         .zip(fs_checksums)
         .zip(zip_checksums)
-        .par_bridge()
         .filter_map(|((path, fs_result), zip_result)| process_results(path, fs_result, zip_result))
         .collect::<Vec<_>>();
 

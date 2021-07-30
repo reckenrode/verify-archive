@@ -1,28 +1,35 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-use std::fs::File;
 use std::io;
+use std::sync::Mutex;
+use std::{fs::File, sync::Arc};
 
 use blake3::Hash;
+use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 use zip::ZipArchive;
 
 use crate::digest::b3sum;
 
-pub fn hash_files(mut zip: ZipArchive<File>) -> impl Iterator<Item = io::Result<Hash>> {
-    (0..zip.len()).filter_map(move |index| {
-        match zip.by_index(index).map_err(|e| match e {
+pub fn hash_files(mut zip: ZipArchive<File>) -> impl IndexedParallelIterator<Item = io::Result<Hash>> {
+    let len = zip.len();
+    let indices = (0..len)
+        .filter(|index| {
+            let entry = zip.by_index(*index).map_err(|e| match e {
+                zip::result::ZipError::Io(error) => error,
+                _ => todo!(),
+            });
+            entry.map(|zf| zf.is_file()).unwrap_or(true)
+        })
+        .collect::<Vec<_>>();
+    let zip = Arc::new(Mutex::new(zip));
+    indices.into_par_iter().map(move |index| {
+        let zip = zip.clone();
+        let mut mzip = zip.lock().expect("no panics");
+        let mut entry = mzip.by_index(index).map_err(|e| match e {
             zip::result::ZipError::Io(error) => error,
             _ => todo!(),
-        }) {
-            Ok(mut entry) => {
-                if entry.is_file() {
-                    Some(b3sum(&mut entry))
-                } else {
-                    None
-                }
-            }
-            Err(error) => Some(Err(error)),
-        }
+        })?;
+        b3sum(&mut entry)
     })
 }
 
@@ -63,27 +70,27 @@ mod tests {
         let zip_path = new_archive_from_spec(spec)?;
         let zip = ZipArchive::new(File::open(zip_path)?)?;
 
-        let mut stream = hash_files(zip);
-        let result = stream.next();
+        let stream = hash_files(zip);
+        let result = stream.count();
 
-        assert_eq!(result.is_none(), true);
+        assert_eq!(result, 0);
 
         Ok(())
     }
 
     #[test]
     fn sequence_with_one_item_returns_one_hash() -> io::Result<()> {
-        let expected = "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323";
+        let expected = vec!["cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323"];
 
         let zip_path = new_archive_from_spec([("file 1", "file 1 contents")])?;
         let zip = ZipArchive::new(File::open(zip_path)?)?;
 
-        let mut stream = hash_files(zip);
-        let result = stream.next().map(|o| o.expect("file hashed").to_string());
-        let next = stream.next();
-        assert_eq!(result.expect("is some"), expected);
-        assert_eq!(next.is_none(), true);
+        let stream = hash_files(zip);
+        let result = stream
+            .map(|o| o.expect("file hashed").to_string())
+            .collect::<Vec<_>>();
 
+        assert_eq!(result, expected);
         Ok(())
     }
 
