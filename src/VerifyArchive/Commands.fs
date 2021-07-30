@@ -3,7 +3,6 @@
 module VerifyArchive.Commands
 
 open FSharp.Control
-open FSharp.Control.Tasks.Affine
 open System.CommandLine
 open System.IO
 
@@ -49,17 +48,19 @@ let private showSuccess (console: IConsole) =
     console.Out.Write "All files matched!\n"
     0
 
-let verify (options: Options) (console: IConsole) = task {
-    match options.input |> openArchive with
-    | Error msg -> return console |> showError msg
-    | Ok zip ->
-        let! diffs =
-            zip
-            |> Archive.differences options.root.FullName
-            |> AsyncSeq.map renderError
-            |> AsyncSeq.toListAsync
+let verify (options: Options) (console: IConsole) =
+    async {
+        match options.input |> openArchive with
+        | Error msg -> return console |> showError msg
+        | Ok zip ->
+            let! diffs =
+                zip
+                |> Archive.differences options.root.FullName
+                |> AsyncSeq.map renderError
+                |> AsyncSeq.toListAsync
 
-        if diffs |> List.isEmpty
-        then return console |> showSuccess
-        else return console |> showDifferences diffs
-}
+            if diffs |> List.isEmpty
+            then return console |> showSuccess
+            else return console |> showDifferences diffs
+    }
+    |> Async.StartAsTask

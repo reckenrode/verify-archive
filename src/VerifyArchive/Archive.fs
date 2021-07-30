@@ -61,7 +61,7 @@ module Archive =
                     |> Option.orElseWith (fun () -> tryOpenFile <| BACKSLASH_REGEX.Replace (filename, "\\"))
                 return async {
                     use file = file
-                    let! hash = (Blake3.computeHashAsync file).AsTask () |> Async.AwaitTask
+                    let! hash = Blake3.computeHashAsync file
                     return (filename, Some hash)
                 }
             }
@@ -69,7 +69,7 @@ module Archive =
 
         let processEntry entry = async {
             use file = entry |> Entry.openStream
-            return! (Blake3.computeHashAsync file).AsTask () |> Async.AwaitTask
+            return! Blake3.computeHashAsync file
         }
 
         let processChecksums zipHash = function
