@@ -9,7 +9,7 @@ use tokio::{fs::File, io};
 
 use crate::digest::b3sum;
 
-fn hash_files(
+pub fn hash_files(
     paths: impl IntoIterator<Item = impl AsRef<Path>>,
 ) -> impl Stream<Item = io::Result<Hash>> {
     stream! {
