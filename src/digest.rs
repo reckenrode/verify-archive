@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-use std::io::Read;
+use std::io;
 
+use async_std::prelude::*;
 use blake3::{Hash, Hasher};
-use tokio::{io::{self, AsyncRead, AsyncReadExt}};
 
-pub async fn b3sum(reader: &mut (impl AsyncRead + Unpin)) -> io::Result<Hash> {
+pub async fn b3sum(reader: &mut (impl async_std::io::Read + Unpin)) -> io::Result<Hash> {
     let mut hasher = Hasher::new();
-    let mut buffer = [0u8; 16 * 1024];
+    let mut buffer = [0u8; 256 * 1024];
 
     let mut bytes_read = reader.read(&mut buffer).await?;
     while bytes_read > 0 {
-        hasher.update(&buffer[..bytes_read]);
+        hasher.update_rayon(&buffer[..bytes_read]);
         bytes_read = reader.read(&mut buffer).await?;
     }
 
     Ok(hasher.finalize())
 }
 
-pub fn b3sum_noasync(reader: &mut impl Read) -> io::Result<Hash> {
+pub fn b3sum_noasync(reader: &mut impl std::io::Read) -> io::Result<Hash> {
     let mut hasher = Hasher::new();
-    let mut buffer = [0u8; 16 * 1024];
+    let mut buffer = [0u8; 256 * 1024];
 
     let mut bytes_read = reader.read(&mut buffer)?;
     while bytes_read > 0 {
-        hasher.update(&buffer[..bytes_read]);
+        hasher.update_rayon(&buffer[..bytes_read]);
         bytes_read = reader.read(&mut buffer)?;
     }
 
@@ -35,7 +35,7 @@ pub fn b3sum_noasync(reader: &mut impl Read) -> io::Result<Hash> {
 mod tests {
     use super::*;
 
-    #[tokio::test]
+    #[async_std::test]
     async fn checksum_returns_the_b3sum_of_the_input() -> io::Result<()> {
         let expected = "6a953581d60dbebc9749b56d2383277fb02b58d260b4ccf6f119108fa0f1d4ef";
         let mut input: &[u8] = b"test data";

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+use std::io;
 use std::path::Path;
 
+use async_std::fs::File;
 use async_stream::stream;
 use blake3::Hash;
 use futures_core::stream::Stream;
-use tokio::{fs::File, io};
 
 use crate::digest::b3sum;
 
@@ -14,7 +15,7 @@ pub fn hash_files(
 ) -> impl Stream<Item = io::Result<Hash>> {
     stream! {
         for ref path in paths {
-            match File::open(path).await {
+            match File::open(path.as_ref()).await {
                 Ok(mut file) => {
                     let hash = b3sum(&mut file).await?;
                     yield Ok(hash)
@@ -31,9 +32,9 @@ pub fn hash_files(
 mod tests {
     use std::path::PathBuf;
 
+    use async_std::prelude::*;
     use futures_util::{pin_mut, StreamExt};
     use tempfile::{tempdir, TempDir};
-    use tokio::io::AsyncWriteExt;
 
     use super::*;
 
@@ -51,7 +52,7 @@ mod tests {
         Ok((dir, paths))
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn empty_sequence_returns_no_hashes() -> io::Result<()> {
         let files: &[&Path] = &[];
 
@@ -65,7 +66,7 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn sequence_with_one_item_returns_one_hash() -> io::Result<()> {
         let expected = "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323";
 
@@ -86,7 +87,7 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn sequence_with_multiple_items_returns_hashes_in_order() -> io::Result<()> {
         let expected = vec![
             "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323",
@@ -115,7 +116,7 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn sequence_with_missing_files_continues() -> io::Result<()> {
         let expected = vec![
             Ok("cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323".to_owned()),

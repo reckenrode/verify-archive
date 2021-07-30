@@ -1,37 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-use std::{
-    fs::File,
-    sync::{Arc, Mutex},
-};
+use std::fs::File;
+use std::io;
 
 use async_stream::try_stream;
 use blake3::Hash;
 use futures_core::Stream;
-use tokio::{io, task::spawn_blocking};
 use zip::ZipArchive;
 
 use crate::digest::b3sum_noasync;
 
-pub fn hash_files(zip: ZipArchive<File>) -> impl Stream<Item = io::Result<Hash>> {
+pub fn hash_files(mut zip: ZipArchive<File>) -> impl Stream<Item = io::Result<Hash>> {
     let len = zip.len();
-    let zip = Arc::new(Mutex::new(zip));
     try_stream! {
         for index in 0..len {
             let hash: io::Result<Option<Hash>> = {
-                let zip = zip.clone();
-                spawn_blocking(move || {
-                    let mut mzip = zip.lock().expect("other users haven’t paniced");
-                    let mut entry = mzip.by_index(index).map_err(|e| match e {
-                        zip::result::ZipError::Io(error) => error,
-                        _ => todo!(),
-                    })?;
-                    if entry.is_file() {
-                        Ok(Some(b3sum_noasync(&mut entry)?))
-                    } else {
-                        Ok(None)
-                    }
-                }).await?
+                let mut entry = zip.by_index(index).map_err(|e| match e {
+                    zip::result::ZipError::Io(error) => error,
+                    _ => todo!(),
+                })?;
+                if entry.is_file() {
+                    Ok(Some(b3sum_noasync(&mut entry)?))
+                } else {
+                    Ok(None)
+                }
             };
             if let Some(hash) = hash? {
                 yield hash
@@ -72,7 +64,7 @@ mod tests {
         Ok(file.into_temp_path())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn empty_sequence_returns_no_hashes() -> io::Result<()> {
         let spec: [(&str, &str); 0] = [];
         let zip_path = new_archive_from_spec(spec)?;
@@ -88,7 +80,7 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn sequence_with_one_item_returns_one_hash() -> io::Result<()> {
         let expected = "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323";
 
@@ -109,7 +101,7 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn sequence_with_multiple_items_returns_hashes_in_order() -> io::Result<()> {
         let expected = vec![
             "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323",
@@ -138,7 +130,7 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
+    #[async_std::test]
     async fn sequence_with_directory_entries_and_files_hashes_only_files() -> io::Result<()> {
         let expected = vec![
             "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323",

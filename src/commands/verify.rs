@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-use std::{fs::File, path::PathBuf};
+use std::io::{self, Error, ErrorKind};
+use std::iter::once;
+use std::{cmp::Ordering, ffi::OsStr, fs::File, path::PathBuf};
 
 use blake3::Hash;
 use futures_util::{stream, StreamExt};
 use itertools::Itertools;
-use tokio::io::{self, Error, ErrorKind};
+
 use zip::{
     result::{ZipError, ZipResult},
     ZipArchive,
@@ -39,6 +41,20 @@ struct Difference {
     kind: DifferenceKind,
 }
 
+impl Difference {
+    fn render(&self) -> String {
+        let rendered_filename = self
+            .path
+            .file_name()
+            .unwrap_or(OsStr::new("<no filename>"))
+            .to_string_lossy();
+        match self.kind {
+            DifferenceKind::Mismatch => format!("- “{}” does not match", rendered_filename),
+            DifferenceKind::Missing => format!("- “{}” is missing", rendered_filename),
+        }
+    }
+}
+
 enum DifferenceKind {
     Mismatch,
     Missing,
@@ -62,42 +78,44 @@ async fn process_results(
     }
 }
 
-fn print_difference(diff: Difference) {
-    match diff {
-        Difference {
-            path,
-            kind: DifferenceKind::Mismatch,
-        } => println!("“{}” does not match", path.to_string_lossy()),
-        Difference {
-            path,
-            kind: DifferenceKind::Missing,
-        } => println!("“{}” is missing", path.to_string_lossy()),
-    }
-}
-
 pub async fn verify(options: Opts) -> io::Result<()> {
-    let mut archive = ZipArchive::new(File::open(options.input)?)?;
+    let input = options.input;
+    let root = options.root;
+
+    let mut archive = ZipArchive::new(File::open(input)?)?;
     let files = file_names(&mut archive)?;
+
     let paths = stream::iter(files.clone());
-    let fs_checksums = fs::hash_files(files);
+    let fs_checksums = fs::hash_files(files.into_iter().map(|file| root.join(file)));
     let zip_checksums = crate::zip::hash_files(archive);
-    let differences = paths
+
+    let mut differences = paths
         .zip(fs_checksums)
         .zip(zip_checksums)
         .filter_map(|((path, fs_result), zip_result)| process_results(path, fs_result, zip_result))
         .collect::<Vec<_>>()
         .await;
-    let groups = differences.into_iter().group_by(|diff| {
-        diff.path
-            .parent()
-            .map(|p| p.to_owned())
-            .unwrap_or("/".into())
+
+    differences.sort_by(|lhs, rhs| match lhs.path.parent().cmp(&rhs.path.parent()) {
+        Ordering::Equal => lhs.path.file_name().cmp(&rhs.path.file_name()),
+        result => result,
     });
-    for (path, differences) in groups.into_iter() {
-        println!("{}", path.to_string_lossy());
-        for difference in differences {
-            print_difference(difference);
-        }
-    }
+
+    let groups = differences
+        .into_iter()
+        .group_by(|diff| {
+            diff.path
+                .parent()
+                .map(|p| p.to_owned())
+                .unwrap_or("/".into())
+        })
+        .into_iter()
+        .map(|(path, differences)| {
+            once(path.to_string_lossy().into_owned())
+                .chain(differences.map(|d| d.render()))
+                .join("\n")
+        })
+        .join("\n\n");
+    println!("{}", groups);
     Ok(())
 }
