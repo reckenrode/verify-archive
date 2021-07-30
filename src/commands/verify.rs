@@ -5,8 +5,8 @@ use std::iter::once;
 use std::{cmp::Ordering, ffi::OsStr, fs::File, path::PathBuf};
 
 use blake3::Hash;
-use futures_util::{stream, StreamExt};
 use itertools::Itertools;
+use rayon::iter::{ParallelBridge, ParallelIterator};
 
 use zip::{
     result::{ZipError, ZipResult},
@@ -60,7 +60,7 @@ enum DifferenceKind {
     Missing,
 }
 
-async fn process_results(
+fn process_results(
     path: PathBuf,
     fs: Result<Hash, Error>,
     zip: Result<Hash, Error>,
@@ -78,23 +78,24 @@ async fn process_results(
     }
 }
 
-pub async fn verify(options: Opts) -> io::Result<()> {
+pub fn verify(options: Opts) -> io::Result<()> {
     let input = options.input;
     let root = options.root;
 
     let mut archive = ZipArchive::new(File::open(input)?)?;
     let files = file_names(&mut archive)?;
 
-    let paths = stream::iter(files.clone());
+    let paths = files.clone();
     let fs_checksums = fs::hash_files(files.into_iter().map(|file| root.join(file)));
     let zip_checksums = crate::zip::hash_files(archive);
 
     let mut differences = paths
+        .into_iter()
         .zip(fs_checksums)
         .zip(zip_checksums)
+        .par_bridge()
         .filter_map(|((path, fs_result), zip_result)| process_results(path, fs_result, zip_result))
-        .collect::<Vec<_>>()
-        .await;
+        .collect::<Vec<_>>();
 
     differences.sort_by(|lhs, rhs| match lhs.path.parent().cmp(&rhs.path.parent()) {
         Ordering::Equal => lhs.path.file_name().cmp(&rhs.path.file_name()),

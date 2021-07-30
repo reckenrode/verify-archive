@@ -1,85 +1,70 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+use std::fs::File;
 use std::io;
 use std::path::Path;
 
-use async_std::fs::File;
-use async_stream::stream;
 use blake3::Hash;
-use futures_core::stream::Stream;
 
 use crate::digest::b3sum;
 
 pub fn hash_files(
     paths: impl IntoIterator<Item = impl AsRef<Path>>,
-) -> impl Stream<Item = io::Result<Hash>> {
-    stream! {
-        for ref path in paths {
-            match File::open(path.as_ref()).await {
-                Ok(mut file) => {
-                    let hash = b3sum(&mut file).await?;
-                    yield Ok(hash)
-                },
-                Err(error) => {
-                    yield Err(error)
-                },
+) -> impl Iterator<Item = io::Result<Hash>> {
+    paths
+        .into_iter()
+        .map(|path| match File::open(path.as_ref()) {
+            Ok(mut file) => {
+                let hash = b3sum(&mut file)?;
+                Ok(hash)
             }
-        }
-    }
+            Err(error) => Err(error),
+        })
 }
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
+    use std::{io::Write, path::PathBuf};
 
-    use async_std::prelude::*;
-    use futures_util::{pin_mut, StreamExt};
     use tempfile::{tempdir, TempDir};
 
     use super::*;
 
-    async fn set_up_source_files(
+    fn set_up_source_files(
         spec: impl IntoIterator<Item = (impl AsRef<Path>, impl AsRef<str>)>,
     ) -> io::Result<(TempDir, Vec<PathBuf>)> {
         let dir = tempdir()?;
         let mut paths = Vec::new();
         for (file, contents) in spec {
             let path = dir.path().join(file);
-            let mut file = File::create(&path).await?;
+            let mut file = File::create(&path)?;
             paths.push(path);
-            file.write(contents.as_ref().as_bytes()).await?;
+            file.write(contents.as_ref().as_bytes())?;
         }
         Ok((dir, paths))
     }
 
-    #[async_std::test]
-    async fn empty_sequence_returns_no_hashes() -> io::Result<()> {
+    #[test]
+    fn empty_sequence_returns_no_hashes() -> io::Result<()> {
         let files: &[&Path] = &[];
 
-        let stream = hash_files(files);
-        pin_mut!(stream);
-
-        let result = stream.next().await;
+        let mut stream = hash_files(files);
+        let result = stream.next();
 
         assert_eq!(result.is_none(), true);
 
         Ok(())
     }
 
-    #[async_std::test]
-    async fn sequence_with_one_item_returns_one_hash() -> io::Result<()> {
+    #[test]
+    fn sequence_with_one_item_returns_one_hash() -> io::Result<()> {
         let expected = "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323";
 
-        let (_work_dir, files) = set_up_source_files([("file 1", "file 1 contents")]).await?;
+        let (_work_dir, files) = set_up_source_files([("file 1", "file 1 contents")])?;
 
-        let stream = hash_files(files);
-        pin_mut!(stream);
-
-        let result = stream
-            .next()
-            .await
-            .map(|o| o.expect("file hashed").to_string());
-        let next = stream.next().await;
+        let mut stream = hash_files(files);
+        let result = stream.next().map(|o| o.expect("file hashed").to_string());
+        let next = stream.next();
 
         assert_eq!(result.expect("is some"), expected);
         assert_eq!(next.is_none(), true);
@@ -87,8 +72,8 @@ mod tests {
         Ok(())
     }
 
-    #[async_std::test]
-    async fn sequence_with_multiple_items_returns_hashes_in_order() -> io::Result<()> {
+    #[test]
+    fn sequence_with_multiple_items_returns_hashes_in_order() -> io::Result<()> {
         let expected = vec![
             "cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323",
             "7b7e5f11be694b5d2b630bb648b74ce91cee8b56aa773015474a86f451d8f335",
@@ -99,13 +84,10 @@ mod tests {
             ("file 1", "file 1 contents"),
             ("file 2", "file 2 contents"),
             ("file 3", "more test data"),
-        ])
-        .await?;
+        ])?;
 
         let stream = hash_files(files);
-        pin_mut!(stream);
-
-        let result = stream.collect::<Vec<_>>().await;
+        let result = stream.collect::<Vec<_>>();
         let result = result
             .into_iter()
             .map(|h| h.expect("file hashed").to_string())
@@ -116,8 +98,8 @@ mod tests {
         Ok(())
     }
 
-    #[async_std::test]
-    async fn sequence_with_missing_files_continues() -> io::Result<()> {
+    #[test]
+    fn sequence_with_missing_files_continues() -> io::Result<()> {
         let expected = vec![
             Ok("cef558d2715440bed7e29eef9b8e798cbf0f165cf201c493c14d746659688323".to_owned()),
             Err(io::ErrorKind::NotFound),
@@ -129,15 +111,12 @@ mod tests {
             ("file 1", "file 1 contents"),
             ("file 3", "file 2 contents"),
             ("file 4", "more test data"),
-        ])
-        .await?;
+        ])?;
 
         files.insert(1, "file 2".into());
 
         let stream = hash_files(files);
-        pin_mut!(stream);
-
-        let result = stream.collect::<Vec<_>>().await;
+        let result = stream.collect::<Vec<_>>();
         let result = result
             .into_iter()
             .map(|r| r.map(|h| h.to_string()).map_err(|e| e.kind()))

@@ -13,14 +13,17 @@ authors = ["Randy Eckenrode <randy@largeandhighquality.com>"]
 description = "Compare Backblaze backup archives to the local filesystem for discrepancies"
 
 [dependencies]
-async-std = { version = "1.9", features = [ "default", "attributes" ] }
-async-stream = "0.3"
-blake3 = { version = "1", features = [ "default", "rayon" ] }
+blake3 = "1"
 clap = "3.0.0-beta.2"
-futures-core = "0.3"
-futures-util = "0.3"
 itertools = "0.10"
+rayon = "1.5"
 zip = "0.5"
 
 [dev-dependencies]
 tempfile = "3.2"
+
+[profile.release]
+incremental = false
+debug = 0 # Set this to 1 or 2 to get more useful backtraces in debugger.
+lto = true
+codegen-units = 1

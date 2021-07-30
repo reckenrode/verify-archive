@@ -12,8 +12,7 @@ mod fs;
 mod opts;
 mod zip;
 
-#[async_std::main]
-async fn main() -> io::Result<()> {
+fn main() -> io::Result<()> {
     let opts = opts::Opts::parse();
-    verify(opts).await
+    verify(opts)
 }
