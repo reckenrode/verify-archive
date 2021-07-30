@@ -6,12 +6,11 @@ use blake3::{Hash, Hasher};
 
 pub fn b3sum(reader: &mut (impl std::io::Read + Unpin)) -> io::Result<Hash> {
     let mut hasher = Hasher::new();
-    let mut buffer = Vec::new();
-    buffer.resize(512 * 1024, 0u8);
+    let mut buffer = [0u8; 16 * 1024];
 
     let mut bytes_read = reader.read(&mut buffer)?;
     while bytes_read > 0 {
-        hasher.update_rayon(&buffer[..bytes_read]);
+        hasher.update(&buffer[..bytes_read]);
         bytes_read = reader.read(&mut buffer)?;
     }
 

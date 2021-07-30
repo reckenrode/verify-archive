@@ -13,7 +13,7 @@ authors = ["Randy Eckenrode <randy@largeandhighquality.com>"]
 description = "Compare Backblaze backup archives to the local filesystem for discrepancies"
 
 [dependencies]
-blake3 = { version = "1", features = [ "rayon" ] }
+blake3 = "1"
 clap = "3.0.0-beta.2"
 itertools = "0.10"
 rayon = "1.5"
