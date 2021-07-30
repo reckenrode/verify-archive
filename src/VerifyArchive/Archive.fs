@@ -53,29 +53,42 @@ module Archive =
             with
             | :? IOException -> None
 
-        let processEntry entry =
-            let filename = entry|> Entry.name
+        let processFile entry =
+            let filename = entry |> Entry.name
             maybe {
                 let! file =
                     tryOpenFile filename
                     |> Option.orElseWith (fun () -> tryOpenFile <| BACKSLASH_REGEX.Replace (filename, "\\"))
                 return async {
                     use file = file
-                    use zipFile = entry |> Entry.openStream
-                    let! result = file |> Stream.matches zipFile
-                    if result
-                    then return None
-                    else return Some { filename = filename; ``type`` = Mismatch }
+                    let! hash = (Blake3.computeHashAsync file).AsTask () |> Async.AwaitTask
+                    return (filename, Some hash)
                 }
             }
-            |> Option.defaultValue (async { return Some { filename = filename; ``type`` = Missing } })
+            |> Option.defaultValue (async { return (filename, None) })
 
-        asyncSeq {
-            for entry in archive |> entries |> AsyncSeq.mapAsync processEntry do
-                match entry with
-                | Some error -> yield error
-                | None -> ()
+        let processEntry entry = async {
+            use file = entry |> Entry.openStream
+            return! (Blake3.computeHashAsync file).AsTask () |> Async.AwaitTask
         }
+
+        let processChecksums zipHash = function
+            | (_, Some fileHash) when fileHash = zipHash -> None
+            | (filename, Some _) -> Some { filename = filename; ``type`` = Mismatch }
+            | (filename, None) -> Some { filename = filename; ``type`` = Missing }
+
+        let fileCheckums =
+            archive
+            |> entries
+            |> AsyncSeq.mapAsync processFile
+
+        let zipChecksums =
+            archive
+            |> entries
+            |> AsyncSeq.mapAsync processEntry
+
+        AsyncSeq.zipWithParallel processChecksums zipChecksums fileCheckums
+        |> AsyncSeq.choose id
 
 module Zip =
     let private liftEntryEnumerator (it: ZipFile) () = asyncSeq {
