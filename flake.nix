@@ -18,7 +18,7 @@
     in
     flake-utils.lib.eachSystem systems (system:
       let
-	overlays = [ (import rust-overlay) ];
+	      overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs { inherit system overlays; };
       in rec {
 #        packages.verify-archive = pkgs.callPackage ./default.nix {};
