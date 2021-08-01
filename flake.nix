@@ -13,7 +13,10 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { nixpkgs, flake-utils, rust-overlay, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+    let
+      systems = builtins.attrNames nixpkgs.legacyPackages;
+    in
+    flake-utils.lib.eachSystem systems (system:
       let
 	overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs { inherit system overlays; };
