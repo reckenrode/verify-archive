@@ -21,14 +21,14 @@
 	      overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs { inherit system overlays; };
       in rec {
-#        packages.verify-archive = pkgs.callPackage ./default.nix {};
-#        defaultPackage = packages.verify-archive;
-#
-#        apps.verify-archive = {
-#          type = "app";
-#          program = "${packages.verify-archive}/bin/verify-archive";
-#        };
-#        apps.defaultApp = apps.verify-archive;
+       packages.verify-archive = pkgs.callPackage ./default.nix {};
+       defaultPackage = packages.verify-archive;
+
+       apps.verify-archive = {
+         type = "app";
+         program = "${packages.verify-archive}/bin/verify-archive";
+       };
+       apps.defaultApp = apps.verify-archive;
 
         devShell = import ./shell.nix { inherit pkgs; };
       }
