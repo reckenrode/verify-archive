@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage {
 
   src = ./.;
 
-  cargoHash = "sha256-1lAgOCHc4eFyA/wZZjHJ7ui7iOsnc1A3v1mA+Qk+sWI=";
+  cargoHash = "sha256-UPzGjn00vq9tmNIKcd4529lGKCel5XTr7wt0sltdyBY=";
 
   meta = let inherit (lib) licenses platforms; in {
     description = info.package.description;
