@@ -1,6 +1,6 @@
 [package]
 name = "verify-archive"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2018"
 
 repository = "https://github.com/reckenrode/verify-archive"
