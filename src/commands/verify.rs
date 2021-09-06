@@ -46,7 +46,7 @@ impl Difference {
         let rendered_filename = self
             .path
             .file_name()
-            .unwrap_or(OsStr::new("<no filename>"))
+            .unwrap_or_else(|| OsStr::new("<no filename>"))
             .to_string_lossy();
         match self.kind {
             DifferenceKind::Mismatch => format!("- “{}” does not match", rendered_filename),
@@ -68,11 +68,11 @@ fn process_results(
     match (fs, zip) {
         (Ok(fs_hash), Ok(zip_hash)) if fs_hash == zip_hash => None,
         (Err(error), _) if error.kind() == ErrorKind::NotFound => Some(Difference {
-            path: path,
+            path,
             kind: DifferenceKind::Missing,
         }),
         _ => Some(Difference {
-            path: path,
+            path,
             kind: DifferenceKind::Mismatch,
         }),
     }
@@ -107,7 +107,7 @@ pub fn verify(options: Opts) -> io::Result<()> {
             diff.path
                 .parent()
                 .map(|p| p.to_owned())
-                .unwrap_or("/".into())
+                .unwrap_or_else(|| "/".into())
         })
         .into_iter()
         .map(|(path, differences)| {
