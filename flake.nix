@@ -4,32 +4,36 @@
     discrepancies it finds.
   '';
 
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-21.05";
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.05";
+    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.0";
+  
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+  
+    flake-utils.url = "github:numtide/flake-utils";
+  };
 
-  inputs.rust-overlay.url = "github:oxalica/rust-overlay";
-  inputs.rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+  outputs = inputs@{ self, nixpkgs, utils, rust-overlay, ... }:
+    utils.lib.mkFlake {
+      inherit self inputs;
+      outputsBuilder = channels:
+        let
+          verify-archive = channels.nixpkgs.callPackage ./default.nix {};
+          verify-archive-app = {
+            type = "app";
+            program = "${verify-archive}/bin/verify-archive";
+          };
+        in
+        {
+          packages.verify-archive = verify-archive;
+          defaultPackage = verify-archive;
 
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+          apps.verify-archive = verify-archive-app;
+          apps.defaultApp = verify-archive-app;
 
-  outputs = { nixpkgs, flake-utils, rust-overlay, ... }:
-    let
-      systems = builtins.attrNames nixpkgs.legacyPackages;
-    in
-    flake-utils.lib.eachSystem systems (system:
-      let
-	      overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
-      in rec {
-       packages.verify-archive = pkgs.callPackage ./default.nix {};
-       defaultPackage = packages.verify-archive;
-
-       apps.verify-archive = {
-         type = "app";
-         program = "${packages.verify-archive}/bin/verify-archive";
-       };
-       apps.defaultApp = apps.verify-archive;
-
-        devShell = import ./shell.nix { inherit pkgs; };
-      }
-    );
+          devShell = import ./shell.nix channels.nixpkgs;
+        };
+      sharedOverlays = [ rust-overlay.overlay ];
+    };
 }
