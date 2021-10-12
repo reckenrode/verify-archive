@@ -10,8 +10,6 @@
   
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-  
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs = inputs@{ self, nixpkgs, utils, rust-overlay, ... }:
