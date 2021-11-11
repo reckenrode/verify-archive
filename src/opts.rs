@@ -2,9 +2,9 @@
 
 use std::path::PathBuf;
 
-use clap::Clap;
+use clap::Parser;
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(about, author, version)]
 pub struct Opts {
     /// the archive to check

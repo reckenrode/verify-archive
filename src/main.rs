@@ -2,7 +2,7 @@
 
 use std::io;
 
-use clap::Clap;
+use clap::Parser;
 
 use crate::commands::verify;
 
