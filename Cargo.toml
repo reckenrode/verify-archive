@@ -1,7 +1,8 @@
 [package]
 name = "verify-archive"
 version = "0.4.4"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 
 repository = "https://github.com/reckenrode/verify-archive"
 categories = ["command-line-utilities"]
