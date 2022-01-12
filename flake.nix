@@ -6,6 +6,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.1";
 
     rust-overlay.url = "github:oxalica/rust-overlay";
@@ -26,6 +27,7 @@
             ] ++ lib.optionals stdenv.isDarwin [
               libiconv
             ];
+	    RUST_ANALYZER_SERVER="${channels.nixpkgs-unstable.rust-analyzer}/bin/rust-analyzer";
           };
       };
     sharedOverlays = [ rust-overlay.overlay ];
