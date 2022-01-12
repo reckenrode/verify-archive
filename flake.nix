@@ -5,8 +5,8 @@
   '';
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable"; # Until Rust 1.56 is available in stable
-    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.0";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
+    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.1";
   };
 
   outputs = inputs@{ self, nixpkgs, utils, ... }:
