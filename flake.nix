@@ -5,8 +5,8 @@
   '';
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.05";
-    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.0";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
+    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.1";
 
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
@@ -21,13 +21,13 @@
             inherit (channels.nixpkgs) lib mkShell stdenv libiconv rust-bin;
           in
           mkShell {
-            nativeBuildInputs = [
+            buildInputs = [
               rust-bin.stable.latest.default
             ] ++ lib.optionals stdenv.isDarwin [
               libiconv
             ];
           };
-        };
+      };
     sharedOverlays = [ rust-overlay.overlay ];
   };
 }
