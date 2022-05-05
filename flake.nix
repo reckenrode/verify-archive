@@ -22,7 +22,7 @@
             inherit (channels.nixpkgs) lib mkShell stdenv libiconv rust-bin;
           in
           mkShell {
-            buildInputs = [
+            packages = [
               rust-bin.stable.latest.default
             ] ++ lib.optionals stdenv.isDarwin [
               libiconv
