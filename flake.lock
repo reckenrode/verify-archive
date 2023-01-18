@@ -15,21 +15,6 @@
         "type": "github"
       }
     },
-    "flake-utils_2": {
-      "locked": {
-        "lastModified": 1644229661,
-        "narHash": "sha256-1YdnJAsNy69bpcjuoKdOYQX0YxZBiCYZo4Twxerqv7k=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "3cecb5b042f7f209c56ffd8371b2711a290ec797",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1673800717,
@@ -46,24 +31,10 @@
         "type": "github"
       }
     },
-    "nixpkgs-unstable": {
-      "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-n5UBO6XBV4h3TB7FYu2yAuNQMEYOrQyKeODUwKe06ow=",
-        "path": "/nix/store/dk1bqlz87dzsd8g4fq92pscgd60ji2vr-source",
-        "type": "path"
-      },
-      "original": {
-        "id": "nixpkgs-unstable",
-        "type": "indirect"
-      }
-    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
-        "nixpkgs-unstable": "nixpkgs-unstable",
-        "rust-overlay": "rust-overlay",
-        "utils": "utils"
+        "rust-overlay": "rust-overlay"
       }
     },
     "rust-overlay": {
@@ -85,21 +56,6 @@
         "owner": "oxalica",
         "repo": "rust-overlay",
         "type": "github"
-      }
-    },
-    "utils": {
-      "inputs": {
-        "flake-utils": "flake-utils_2"
-      },
-      "locked": {
-        "lastModified": 0,
-        "narHash": "sha256-GIYNjuq4mJlFgqKsZ+YrgzWm0IpA4axA3MCrdKYj7gs=",
-        "path": "/nix/store/i5ipw8rvj1fvdaj01bqzc0dpw9irrb4h-source",
-        "type": "path"
-      },
-      "original": {
-        "id": "utils",
-        "type": "indirect"
       }
     }
   },

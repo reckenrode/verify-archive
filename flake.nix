@@ -11,7 +11,7 @@
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, utils, rust-overlay }:
+  outputs = { self, nixpkgs, rust-overlay }:
     let
       inherit (nixpkgs) lib;
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
