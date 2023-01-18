@@ -4,17 +4,26 @@
     discrepancies it finds.
   '';
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.05";
-    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.1";
-  };
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
 
-  outputs = inputs@{ self, nixpkgs, utils, ... }:
-    utils.lib.mkFlake {
-      inherit self inputs;
-      outputsBuilder = channels: rec {
-        packages.verify-archive = channels.nixpkgs.callPackage ./default.nix {};
-	defaultPackage = packages.verify-archive;
-      };
+  outputs = { self, nixpkgs }:
+    let
+      inherit (nixpkgs) lib;
+      forAllSystems = lib.genAttrs lib.systems.flakeExposed;
+    in
+    {
+      packages = forAllSystems (system:
+        let pkgs = nixpkgs.legacyPackages.${system}; in rec {
+          default = verify-archive;
+          verify-archive = pkgs.callPackage ./default.nix { };
+        });
+
+      apps = forAllSystems (system: rec {
+        default = verify-archive;
+        verify-archive = {
+          type = "app";
+          program = "${lib.getBin self.packages.${system}.verify-archive}/bin/verify-archive";
+        };
+      });
     };
 }
