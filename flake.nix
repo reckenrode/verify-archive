@@ -5,31 +5,29 @@
   '';
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    utils.url = "github:gytis-ivaskevicius/flake-utils-plus/v1.3.1";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
 
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nixpkgs, utils, rust-overlay, ... }:
-    utils.lib.mkFlake {
-      inherit self inputs;
-      outputsBuilder = channels: {
-        devShell =
-          let
-            inherit (channels.nixpkgs) lib mkShell stdenv libiconv rust-bin;
-          in
-          mkShell {
-            packages = [
-              rust-bin.stable.latest.default
-            ] ++ lib.optionals stdenv.isDarwin [
-              libiconv
-            ];
-	    RUST_ANALYZER_SERVER="${channels.nixpkgs-unstable.rust-analyzer}/bin/rust-analyzer";
+  outputs = { self, nixpkgs, nixpkgs-unstable, utils, rust-overlay }:
+    let
+      inherit (nixpkgs) lib;
+      forAllSystems = lib.genAttrs lib.systems.flakeExposed;
+    in
+    {
+      devShells = forAllSystems (system:
+        let
+          pkgs = import nixpkgs {
+            inherit system;
+            overlays = [ rust-overlay.overlays.default ];
           };
-      };
-    sharedOverlays = [ rust-overlay.overlay ];
-  };
+        in {
+          default = pkgs.mkShell {
+            packages = [ pkgs.rust-bin.stable.latest.default ];
+            RUST_ANALYZER_SERVER="${pkgs.rust-analyzer}/bin/rust-analyzer";
+          };
+        });
+    };
 }
