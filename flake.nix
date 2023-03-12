@@ -4,29 +4,22 @@
     discrepancies it finds.
   '';
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
 
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-  };
-
-  outputs = { self, nixpkgs, rust-overlay }:
+  outputs = { self, nixpkgs }:
     let
       inherit (nixpkgs) lib;
+
       forAllSystems = lib.genAttrs lib.systems.flakeExposed;
-    in
-    {
+    in {
       devShells = forAllSystems (system:
         let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [ rust-overlay.overlays.default ];
-          };
+          pkgs = nixpkgs.legacyPackages.${system};
         in {
           default = pkgs.mkShell {
-            packages = [ pkgs.rust-bin.stable.latest.default ];
-            RUST_ANALYZER_SERVER="${pkgs.rust-analyzer}/bin/rust-analyzer";
+            packages = lib.attrValues {
+              inherit (pkgs) cargo clippy rustfmt rustc rust-analyzer;
+            };
           };
         });
     };
