@@ -2,6 +2,9 @@
 , stdenv
 , fetchFromGitHub
 , rustPlatform
+, pkgconfig
+, bzip2
+, zstd
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -15,7 +18,16 @@ rustPlatform.buildRustPackage rec {
     hash = "sha256-XyKibEaDnA4UsGHz2Vq3Xvf6zi9MbXiHDjTkDAKCCjo=";
   };
 
-  cargoHash = "sha256-yXXLMfTcC+IPwHgxLIU5uLdhTol+Lf1HhV7+9vBpnCY=";
+  configurePhase = ''
+    export BZIP2_SYS_USE_PKG_CONFIG=1 ZSTD_SYS_USE_PKG_CONFIG=1
+  '';
+
+  buildInputs = [ bzip2 zstd ];
+  nativeBuildInputs = [ pkgconfig ];
+
+  cargoLock = {
+    lockFile = src + /Cargo.lock;
+  };
 
   meta = let inherit (lib) licenses platforms; in {
     description = "Compare Backblaze backup archives to the local filesystem for discrepancies";
