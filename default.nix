@@ -2,7 +2,7 @@
 , stdenv
 , fetchFromGitHub
 , rustPlatform
-, pkgconfig
+, pkg-config
 , bzip2
 , zstd
 }:
@@ -23,7 +23,7 @@ rustPlatform.buildRustPackage rec {
   '';
 
   buildInputs = [ bzip2 zstd ];
-  nativeBuildInputs = [ pkgconfig ];
+  nativeBuildInputs = [ pkg-config ];
 
   cargoLock = {
     lockFile = src + /Cargo.lock;
